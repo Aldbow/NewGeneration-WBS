@@ -1,0 +1,177 @@
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useAdminStore } from '@/store/useAdminStore'
+import { Shield, Eye, EyeOff, AlertCircle, ArrowLeft } from 'lucide-react'
+import Link from 'next/link'
+
+export default function AdminLoginPage() {
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPw, setShowPw] = useState(false)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const login = useAdminStore((s) => s.login)
+  const router = useRouter()
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+    await new Promise((r) => setTimeout(r, 800))
+    const ok = login(username, password)
+    setLoading(false)
+    if (ok) {
+      router.push('/admin/dashboard')
+    } else {
+      setError('Username atau password salah. Coba: admin / admin123')
+    }
+  }
+
+  return (
+    <main id="admin-login-main" className="min-h-screen flex">
+      {/* Left Panel — Branding */}
+      <div className="hidden lg:flex lg:w-1/2 gradient-bg relative overflow-hidden flex-col items-center justify-center p-12">
+        <div className="absolute inset-0 opacity-10" style={{
+          backgroundImage: 'radial-gradient(circle at 30% 40%, white 1px, transparent 1px), radial-gradient(circle at 70% 80%, white 1px, transparent 1px)',
+          backgroundSize: '60px 60px',
+        }} aria-hidden="true" />
+
+        <div className="relative text-center text-white max-w-md">
+          <div className="w-20 h-20 rounded-3xl bg-white/15 flex items-center justify-center mx-auto mb-8 border border-white/20">
+            <Shield size={40} className="text-white" />
+          </div>
+          <h1 className="text-3xl font-heading font-bold mb-4">Portal Admin</h1>
+          <p className="text-blue-100 leading-relaxed mb-8">
+            Dashboard manajemen untuk memantau dan menangani seluruh laporan deklarasi dan pelanggaran secara terpusat.
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { label: 'Total Laporan', value: '5' },
+              { label: 'Menunggu Review', value: '2' },
+              { label: 'Selesai', value: '2' },
+              { label: 'Tingkat Selesai', value: '89%' },
+            ].map(({ label, value }) => (
+              <div key={label} className="bg-white/10 rounded-xl p-3 text-center border border-white/10">
+                <p className="text-2xl font-heading font-bold">{value}</p>
+                <p className="text-xs text-blue-200 mt-0.5">{label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Right Panel — Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 bg-[#F8FAFC] relative">
+        {/* Back to Home — top left on desktop */}
+        <Link
+          href="/"
+          id="back-to-home-btn"
+          className="absolute top-6 left-6 hidden lg:flex items-center gap-2 text-sm text-[#475569] hover:text-[#0A2558] transition-colors group"
+        >
+          <span className="w-7 h-7 rounded-full border border-[#E2E8F0] flex items-center justify-center group-hover:border-[#0A2558] group-hover:bg-[#EFF6FF] transition-all">
+            <ArrowLeft size={14} />
+          </span>
+          Kembali ke Beranda
+        </Link>
+
+        <div className="w-full max-w-md">
+          {/* Mobile Logo */}
+          <div className="flex lg:hidden items-center gap-2.5 mb-8">
+            <div className="w-9 h-9 rounded-xl gradient-bg flex items-center justify-center">
+              <Shield size={18} className="text-white" />
+            </div>
+            <div>
+              <p className="font-heading font-bold text-sm text-[#0A2558]">Portal Integritas</p>
+              <p className="text-xs text-[#475569]">Admin Panel</p>
+            </div>
+          </div>
+
+          <h2 className="text-2xl font-heading font-bold text-[#1E293B] mb-1">Selamat Datang</h2>
+          <p className="text-[#475569] text-sm mb-8">Masuk ke panel administrasi</p>
+
+          <form id="admin-login-form" onSubmit={handleSubmit} noValidate className="space-y-5">
+            {/* Username */}
+            <div>
+              <label htmlFor="admin-username" className="form-label">Username</label>
+              <input
+                id="admin-username"
+                type="text"
+                placeholder="Masukkan username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="form-input"
+                autoComplete="username"
+                required
+              />
+            </div>
+
+            {/* Password */}
+            <div>
+              <label htmlFor="admin-password" className="form-label">Password</label>
+              <div className="relative">
+                <input
+                  id="admin-password"
+                  type={showPw ? 'text' : 'password'}
+                  placeholder="Masukkan password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="form-input pr-12"
+                  autoComplete="current-password"
+                  required
+                />
+                <button
+                  type="button"
+                  id="toggle-password"
+                  onClick={() => setShowPw(!showPw)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#94A3B8] hover:text-[#475569] transition"
+                  aria-label={showPw ? 'Sembunyikan password' : 'Tampilkan password'}
+                >
+                  {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+
+            {/* Error */}
+            {error && (
+              <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-xl px-4 py-3" role="alert">
+                <AlertCircle size={16} className="text-red-500 mt-0.5 shrink-0" aria-hidden="true" />
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            )}
+
+            {/* Submit */}
+            <button
+              id="admin-login-btn"
+              type="submit"
+              disabled={loading || !username || !password}
+              className={`btn btn-primary w-full py-4 text-base ${loading || !username || !password ? 'opacity-60 cursor-not-allowed' : ''}`}
+            >
+              {loading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Memverifikasi...
+                </>
+              ) : 'Masuk ke Dashboard'}
+            </button>
+
+            <p className="text-center text-xs text-[#94A3B8]">
+              Demo: <code className="bg-gray-100 px-1 rounded">admin</code> / <code className="bg-gray-100 px-1 rounded">admin123</code>
+            </p>
+
+            {/* Back to Home — visible on mobile */}
+            <Link
+              href="/"
+              id="back-to-home-mobile-btn"
+              className="lg:hidden flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-[#E2E8F0] text-sm text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0A2558] transition-all mt-1"
+            >
+              <ArrowLeft size={15} />
+              Kembali ke Beranda
+            </Link>
+          </form>
+        </div>
+      </div>
+    </main>
+  )
+}
