@@ -59,7 +59,7 @@ const features = [
 ]
 
 const stats = [
-  { value: '1.240+', label: 'Laporan Ditangani', icon: CheckCircle },
+  { value: '1.240+', label: 'Deklarasi & Laporan', icon: CheckCircle },
   { value: '89%', label: 'Tingkat Penyelesaian', icon: AlertTriangle },
   { value: '47', label: 'Unit Kerja Terlibat', icon: Shield },
   { value: '< 24 Jam', label: 'Rata-rata Respons', icon: Clock },
@@ -138,28 +138,28 @@ export default function FeatureGrid() {
 
             <AnimateIn animation="slideDown" delay={150} className="relative">
               <h2 className="text-2xl sm:text-3xl font-heading font-bold text-white mb-3">
-                Siap Melaporkan Pelanggaran?
+                Siap Membuat Deklarasi?
               </h2>
               <p className="text-blue-100 mb-8 max-w-md mx-auto">
-                Identitas Anda sepenuhnya terlindungi. Mulai buat laporan sekarang dan bantu wujudkan pemerintahan yang bersih.
+                Sampaikan deklarasi benturan kepentingan Anda secara digital dengan aman dan mudah. Integritas dimulai dari Anda.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Link
-                  href="/lapor"
-                  id="feature-cta-lapor"
+                  href="/deklarasi"
+                  id="feature-cta-deklarasi"
                   className="group flex items-center justify-center gap-2 px-8 py-3.5 bg-white text-[#0A2558] rounded-2xl font-heading font-bold hover:bg-blue-50 transition-all hover:scale-105"
                 >
-                  <AlertTriangle size={18} className="text-red-500" />
-                  Lapor Sekarang
+                  <FileText size={18} className="text-cyan-600" />
+                  Buat Deklarasi
                   <ArrowRight size={16} className="opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
                 </Link>
                 <Link
-                  href="/cek-tiket"
-                  id="feature-cta-cek"
+                  href="/lapor"
+                  id="feature-cta-lapor"
                   className="flex items-center justify-center gap-2 px-8 py-3.5 bg-white/15 text-white rounded-2xl font-heading font-bold hover:bg-white/25 transition-all hover:scale-105 border border-white/20"
                 >
-                  <Clock size={18} />
-                  Cek Status Tiket
+                  <AlertTriangle size={18} />
+                  Lapor Pelanggaran
                 </Link>
               </div>
             </AnimateIn>

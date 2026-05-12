@@ -25,7 +25,7 @@ function useCounter(target: number, duration = 2000, start = false) {
 }
 
 const STATS = [
-  { label: 'Laporan Ditangani', value: 1240, suffix: '+', icon: FileText },
+  { label: 'Deklarasi & Laporan', value: 1240, suffix: '+', icon: FileText },
   { label: 'Tingkat Penyelesaian', value: 89, suffix: '%', icon: Shield },
   { label: 'Unit Kerja', value: 47, suffix: '', icon: Users },
   { label: 'Anonim & Aman', value: 100, suffix: '%', icon: Lock },
@@ -151,7 +151,7 @@ export default function HeroSection() {
               {/* Badge */}
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-sm font-semibold mb-8 hero-badge hero-enter hero-enter-1">
                 <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-                <span className="text-cyan-300">Sistem Integritas Resmi Kemnaker RI</span>
+                <span className="text-cyan-300">Sistem Integritas Kemnaker RI</span>
               </div>
 
               {/* Headline */}
@@ -174,21 +174,21 @@ export default function HeroSection() {
               {/* CTA Row */}
               <div className="flex flex-col sm:flex-row gap-4 mb-12 hero-enter hero-enter-6">
                 <Link
-                  href="/lapor"
-                  id="hero-cta-lapor"
+                  href="/deklarasi"
+                  id="hero-cta-deklarasi"
                   className="group flex items-center justify-center gap-3 px-8 py-4 rounded-2xl font-heading font-bold text-base text-white transition-all duration-300 hero-btn-primary"
                 >
-                  <AlertTriangle size={20} className="text-red-400 group-hover:animate-pulse" />
-                  Lapor Pelanggaran
+                  <FileText size={20} className="text-cyan-400 group-hover:animate-pulse" />
+                  Buat Deklarasi
                   <ArrowRight size={18} className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
                 </Link>
                 <Link
-                  href="/deklarasi"
-                  id="hero-cta-deklarasi"
+                  href="/lapor"
+                  id="hero-cta-lapor"
                   className="group flex items-center justify-center gap-3 px-8 py-4 rounded-2xl font-heading font-bold text-base transition-all duration-300 hero-btn-secondary"
                 >
-                  <FileText size={20} />
-                  Buat Deklarasi
+                  <AlertTriangle size={20} />
+                  Lapor Pelanggaran
                 </Link>
               </div>
 
@@ -223,7 +223,7 @@ export default function HeroSection() {
                     <div className="w-20 h-20 rounded-3xl flex items-center justify-center mb-4 mx-auto hero-icon-bg">
                       <Shield size={40} className="text-white" />
                     </div>
-                    <p className="text-white font-heading font-bold text-lg text-center leading-tight">Portal<br/>Integritas</p>
+                    <p className="text-white font-heading font-bold text-lg text-center leading-tight">Portal<br />Integritas</p>
                     <div className="mt-3 flex items-center gap-1.5 justify-center">
                       <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
                       <span className="text-green-400 text-xs font-medium">Sistem Aktif</span>

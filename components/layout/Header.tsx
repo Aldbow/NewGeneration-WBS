@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Shield, Menu, X, AlertTriangle, ChevronRight } from 'lucide-react'
+import { Shield, Menu, X, FileText, ChevronRight } from 'lucide-react'
 
 const navLinks = [
   { href: '/', label: 'Beranda' },
@@ -83,16 +83,16 @@ export default function Header() {
           {/* ── CTA Buttons ── */}
           <div className="hidden md:flex items-center gap-2">
             <Link
-              href="/lapor"
-              id="header-cta-lapor"
+              href="/deklarasi"
+              id="header-cta-deklarasi"
               className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-heading font-bold transition-all duration-200 ${
                 isHeroPage
-                  ? 'bg-gradient-to-r from-rose-600 to-red-500 text-white hover:from-rose-500 hover:to-red-400 shadow-lg shadow-red-900/30'
+                  ? 'bg-gradient-to-r from-cyan-600 to-blue-500 text-white hover:from-cyan-500 hover:to-blue-400 shadow-lg shadow-cyan-900/30'
                   : 'bg-gradient-to-r from-[#0A2558] to-[#1D5BBF] text-white shadow-lg'
               } hover:scale-105 hover:-translate-y-0.5`}
             >
-              <AlertTriangle size={14} />
-              Lapor Sekarang
+              <FileText size={14} />
+              Buat Deklarasi
             </Link>
             <Link
               href="/admin/login"
@@ -142,11 +142,11 @@ export default function Header() {
               ))}
               <div className="pt-2 flex flex-col gap-2">
                 <Link
-                  href="/lapor"
+                  href="/deklarasi"
                   onClick={() => setMobileOpen(false)}
-                  className="flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-rose-600 to-red-500 text-white font-bold text-sm"
+                  className="flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-500 text-white font-bold text-sm"
                 >
-                  <AlertTriangle size={16} /> Lapor Pelanggaran
+                  <FileText size={16} /> Buat Deklarasi
                 </Link>
                 <Link
                   href="/admin/login"
