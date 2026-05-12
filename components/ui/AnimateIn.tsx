@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, ReactNode, CSSProperties } from 'react'
+import { useEffect, useRef, useState, ReactNode, CSSProperties } from 'react'
 
 export type AnimationType =
   | 'slideUp'
@@ -21,14 +21,14 @@ interface AnimateInProps {
   style?: CSSProperties
 }
 
-const INITIAL: Record<AnimationType, string> = {
-  slideUp:    'opacity:0;transform:translateY(48px)',
-  slideDown:  'opacity:0;transform:translateY(-40px)',
-  slideLeft:  'opacity:0;transform:translateX(-56px)',
-  slideRight: 'opacity:0;transform:translateX(56px)',
-  fadeIn:     'opacity:0',
-  scaleUp:    'opacity:0;transform:scale(0.85)',
-  flipUp:     'opacity:0;transform:perspective(600px) rotateX(20deg) translateY(32px)',
+const INITIAL: Record<AnimationType, CSSProperties> = {
+  slideUp:    { opacity: 0, transform: 'translateY(48px)' },
+  slideDown:  { opacity: 0, transform: 'translateY(-40px)' },
+  slideLeft:  { opacity: 0, transform: 'translateX(-56px)' },
+  slideRight: { opacity: 0, transform: 'translateX(56px)' },
+  fadeIn:     { opacity: 0 },
+  scaleUp:    { opacity: 0, transform: 'scale(0.85)' },
+  flipUp:     { opacity: 0, transform: 'perspective(600px) rotateX(20deg) translateY(32px)' },
 }
 
 export default function AnimateIn({
@@ -41,39 +41,36 @@ export default function AnimateIn({
   style = {},
 }: AnimateInProps) {
   const ref = useRef<HTMLDivElement>(null)
+  const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
     const el = ref.current
     if (!el) return
 
-    // Parse and apply initial CSS
-    const initial = INITIAL[animation]
-    initial.split(';').forEach((rule) => {
-      const colonIdx = rule.indexOf(':')
-      if (colonIdx === -1) return
-      const prop = rule.slice(0, colonIdx).trim()
-      const val = rule.slice(colonIdx + 1).trim()
-      if (prop && val) el.style.setProperty(prop, val)
-    })
-    el.style.transition = `opacity ${duration}ms cubic-bezier(0.22,1,0.36,1) ${delay}ms, transform ${duration}ms cubic-bezier(0.22,1,0.36,1) ${delay}ms`
-
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          el.style.opacity = '1'
-          el.style.transform = 'none'
+          setIsVisible(true)
           observer.unobserve(el)
         }
       },
       { threshold }
     )
 
-    const timer = setTimeout(() => observer.observe(el), 50)
-    return () => { clearTimeout(timer); observer.disconnect() }
-  }, [animation, delay, duration, threshold])
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [threshold])
+
+  const initialStyle = INITIAL[animation]
+  
+  const currentStyle: CSSProperties = {
+    ...style,
+    ...(isVisible ? { opacity: 1, transform: 'none' } : initialStyle),
+    transition: `opacity ${duration}ms cubic-bezier(0.22,1,0.36,1) ${delay}ms, transform ${duration}ms cubic-bezier(0.22,1,0.36,1) ${delay}ms`
+  }
 
   return (
-    <div ref={ref} className={className} style={style}>
+    <div ref={ref} className={className} style={currentStyle}>
       {children}
     </div>
   )

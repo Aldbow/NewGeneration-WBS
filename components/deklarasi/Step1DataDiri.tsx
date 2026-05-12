@@ -73,7 +73,7 @@ export default function Step1DataDiri({ defaultValues, onNext }: Step1Props) {
                 type={type || 'text'}
                 placeholder={placeholder}
                 {...register(name)}
-                className={`form-input pl-10 ${errors[name] ? 'error' : ''}`}
+                className={`form-input !pl-10 ${errors[name] ? 'error' : ''}`}
                 aria-invalid={!!errors[name]}
                 aria-describedby={errors[name] ? `error-${name}` : undefined}
               />

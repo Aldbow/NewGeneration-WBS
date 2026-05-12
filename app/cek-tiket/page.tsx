@@ -119,7 +119,7 @@ function CekTiketContent() {
               placeholder="Masukkan nomor tiket (DKL-2025-... / WBS-2025-...)"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="form-input pl-12 text-base py-4 shadow-lg w-full"
+              className="form-input !pl-12 text-base py-4 shadow-lg w-full"
               aria-label="Nomor tiket"
             />
           </div>

@@ -77,7 +77,7 @@ export default function DataTable({
             placeholder="Cari tiket, nama, atau judul..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="form-input pl-9 py-2 text-sm"
+            className="form-input !pl-9 !py-2 text-sm"
           />
         </div>
         {/* Filter Tabs */}

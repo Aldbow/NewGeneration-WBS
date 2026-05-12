@@ -34,8 +34,8 @@ export default function Header() {
   ── */
   const headerBg = isHeroPage
     ? scrolled
-      ? 'bg-[#020817]/90 backdrop-blur-xl border-b border-white/8'
-      : 'bg-[#020817]/70 backdrop-blur-md border-b border-white/5'
+      ? 'bg-[#071525]/85 backdrop-blur-2xl shadow-[0_8px_30px_rgba(0,0,0,0.6)]'
+      : 'bg-transparent'
     : scrolled
       ? 'bg-white/80 backdrop-blur-xl border-b border-slate-200/80 shadow-sm'
       : 'bg-transparent'

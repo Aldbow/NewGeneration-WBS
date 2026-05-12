@@ -348,11 +348,8 @@ export default function HeroSection() {
           -webkit-text-fill-color: transparent;
           background-clip: text;
           background-size: 200% auto;
-          animation: textShimmer 4s linear infinite;
-        }
-        @keyframes textShimmer {
-          0% { background-position: 0% center; }
-          100% { background-position: 200% center; }
+          padding-bottom: 0.15em;
+          margin-bottom: -0.15em;
         }
 
         /* Buttons */

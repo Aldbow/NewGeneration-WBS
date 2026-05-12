@@ -52,11 +52,10 @@ export default function Sidebar() {
               href={href}
               id={`sidebar-${label.toLowerCase().replace(/\s/g, '-')}`}
               onClick={() => setMobileOpen(false)}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                active && href === '/admin/dashboard'
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${active && href === '/admin/dashboard'
                   ? 'bg-[#0A2558] text-white'
                   : 'text-[#475569] hover:bg-[#F1F5F9] hover:text-[#1E293B]'
-              } ${collapsed ? 'justify-center' : ''}`}
+                } ${collapsed ? 'justify-center' : ''}`}
               title={collapsed ? label : undefined}
             >
               <Icon size={18} className="shrink-0" />
@@ -87,15 +86,14 @@ export default function Sidebar() {
       {/* Desktop Sidebar */}
       <aside
         id="admin-sidebar"
-        className={`hidden lg:flex flex-col bg-white border-r border-[#E2E8F0] transition-all duration-300 h-screen sticky top-0 ${
-          collapsed ? 'w-16' : 'w-60'
-        }`}
+        className={`hidden lg:flex flex-col bg-white border-r border-[#E2E8F0] transition-all duration-300 h-screen sticky top-0 ${collapsed ? 'w-16' : 'w-60'
+          }`}
       >
         <SidebarContent />
         <button
           id="sidebar-collapse-btn"
           onClick={() => setCollapsed(!collapsed)}
-          className="absolute -right-3 top-20 w-6 h-6 bg-white border border-[#E2E8F0] rounded-full flex items-center justify-center shadow-sm hover:bg-[#F1F5F9] transition"
+          className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-white border border-[#E2E8F0] rounded-full flex items-center justify-center shadow-sm hover:bg-[#F1F5F9] transition"
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           <ChevronRight size={12} className={`transition-transform ${collapsed ? '' : 'rotate-180'}`} />
