@@ -1,30 +1,35 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
-import { useRouter, usePathname } from 'next/navigation'
-import { useAdminStore } from '@/store/useAdminStore'
+import { useRouter } from 'next/navigation'
+import { useAdminStore, AdminTab } from '@/store/useAdminStore'
 import {
   Shield, LayoutDashboard, FileText, AlertTriangle,
   LogOut, Menu, X, ChevronRight
 } from 'lucide-react'
 
-const navItems = [
-  { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/admin/dashboard?tab=deklarasi', label: 'Deklarasi', icon: FileText },
-  { href: '/admin/dashboard?tab=laporan', label: 'Laporan WBS', icon: AlertTriangle },
+const navItems: { tab: AdminTab; label: string; icon: React.ElementType }[] = [
+  { tab: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { tab: 'deklarasi', label: 'Deklarasi', icon: FileText },
+  { tab: 'laporan', label: 'Laporan WBS', icon: AlertTriangle },
 ]
 
 export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const logout = useAdminStore((s) => s.logout)
+  const activeTab = useAdminStore((s) => s.activeTab)
+  const setActiveTab = useAdminStore((s) => s.setActiveTab)
   const router = useRouter()
-  const pathname = usePathname()
 
   const handleLogout = () => {
     logout()
     router.push('/admin/login')
+  }
+
+  const handleNav = (tab: AdminTab) => {
+    setActiveTab(tab)
+    setMobileOpen(false)
   }
 
   const SidebarContent = () => (
@@ -44,24 +49,23 @@ export default function Sidebar() {
 
       {/* Nav */}
       <nav className="flex-1 p-3 space-y-1" aria-label="Admin navigation">
-        {navItems.map(({ href, label, icon: Icon }) => {
-          const active = pathname === '/admin/dashboard'
+        {navItems.map(({ tab, label, icon: Icon }) => {
+          const active = activeTab === tab
           return (
-            <Link
-              key={href}
-              href={href}
+            <button
+              key={tab}
               id={`sidebar-${label.toLowerCase().replace(/\s/g, '-')}`}
-              onClick={() => setMobileOpen(false)}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${active && href === '/admin/dashboard'
-                  ? 'bg-[#0A2558] text-white'
+              onClick={() => handleNav(tab)}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all w-full text-left ${active
+                  ? 'bg-[#0A2558] text-white shadow-lg shadow-[#0A2558]/20'
                   : 'text-[#475569] hover:bg-[#F1F5F9] hover:text-[#1E293B]'
                 } ${collapsed ? 'justify-center' : ''}`}
               title={collapsed ? label : undefined}
             >
               <Icon size={18} className="shrink-0" />
               {!collapsed && <span>{label}</span>}
-              {!collapsed && <ChevronRight size={14} className="ml-auto opacity-40" />}
-            </Link>
+              {!collapsed && <ChevronRight size={14} className={`ml-auto transition-transform ${active ? 'opacity-70' : 'opacity-40'}`} />}
+            </button>
           )
         })}
       </nav>
