@@ -12,6 +12,7 @@ interface Step3Props {
   onNext: (data: SignatureData) => void
   onBack: () => void
   userName?: string
+  isSubmitting?: boolean
 }
 
 const DECLARATION_TEXT = `Saya yang bertanda tangan di bawah ini menyatakan dengan sesungguhnya bahwa:
@@ -20,7 +21,7 @@ const DECLARATION_TEXT = `Saya yang bertanda tangan di bawah ini menyatakan deng
 2. Saya memahami bahwa deklarasi ini dibuat dalam rangka pemenuhan kewajiban integritas sebagaimana diatur dalam peraturan perundang-undangan yang berlaku.
 3. Apabila dikemudian hari terbukti bahwa pernyataan ini tidak benar, saya bersedia menerima sanksi sesuai ketentuan yang berlaku.`
 
-export default function Step3Signature({ onNext, onBack, userName }: Step3Props) {
+export default function Step3Signature({ onNext, onBack, userName, isSubmitting }: Step3Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [isDrawing, setIsDrawing] = useState(false)
   const [hasSignature, setHasSignature] = useState(false)
@@ -198,8 +199,19 @@ export default function Step3Signature({ onNext, onBack, userName }: Step3Props)
         <button id="step3-back-btn" type="button" onClick={onBack} className="btn btn-secondary">
           ← Kembali
         </button>
-        <button id="step3-next-btn" type="button" onClick={handleSubmit} className="btn btn-primary px-8">
-          Kirim Deklarasi →
+        <button
+          id="step3-next-btn"
+          type="button"
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+          className={`btn btn-primary px-8 ${isSubmitting ? 'opacity-70 cursor-wait' : ''}`}
+        >
+          {isSubmitting ? (
+            <>
+              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              Mengirim...
+            </>
+          ) : 'Kirim Deklarasi →'}
         </button>
       </div>
     </div>

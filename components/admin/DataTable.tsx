@@ -1,13 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import { Ticket, getStatusColor, getStatusLabel, getUrgencyColor } from '@/lib/mock-data'
+import { getStatusColor, getStatusLabel, getUrgencyColor } from '@/lib/mock-data'
+import { TicketWithDetails } from '@/lib/supabase-service'
 import { formatDateShort } from '@/lib/ticket'
 import { FileText, AlertTriangle, ChevronUp, ChevronDown, Eye, Search } from 'lucide-react'
 
 interface DataTableProps {
-  tickets: Ticket[]
-  onSelect: (ticket: Ticket) => void
+  tickets: TicketWithDetails[]
+  onSelect: (ticket: TicketWithDetails) => void
   searchQuery: string
   onSearchChange: (q: string) => void
   filterType: 'all' | 'deklarasi' | 'laporan'
@@ -44,8 +45,8 @@ export default function DataTable({
       return (
         t.ticketId.toLowerCase().includes(q) ||
         t.status.toLowerCase().includes(q) ||
-        (t.type === 'deklarasi' && t.nama.toLowerCase().includes(q)) ||
-        (t.type === 'laporan' && t.title.toLowerCase().includes(q))
+        (t.type === 'deklarasi' && t.nama?.toLowerCase().includes(q)) ||
+        (t.type === 'laporan' && t.title?.toLowerCase().includes(q))
       )
     })
     .sort((a, b) => {
@@ -158,10 +159,10 @@ export default function DataTable({
                   </td>
                   <td className="px-4 py-3 max-w-[200px]">
                     <p className="text-sm font-medium text-[#1E293B] truncate">
-                      {ticket.type === 'deklarasi' ? ticket.nama : ticket.title}
+                      {ticket.type === 'deklarasi' ? (ticket.nama || '-') : (ticket.title || '-')}
                     </p>
                     <p className="text-xs text-[#94A3B8] truncate">
-                      {ticket.type === 'deklarasi' ? ticket.jabatan : ticket.category}
+                      {ticket.type === 'deklarasi' ? (ticket.jabatan || '-') : (ticket.category || '-')}
                     </p>
                   </td>
                   <td className="px-4 py-3 text-xs text-[#475569] whitespace-nowrap">

@@ -1,11 +1,11 @@
 'use client'
 
 import { FileText, AlertTriangle, CheckCircle, Clock, TrendingUp, Users } from 'lucide-react'
-import { Declaration, WbsReport } from '@/lib/mock-data'
+import { TicketWithDetails } from '@/lib/supabase-service'
 
 interface StatsGridProps {
-  declarations: Declaration[]
-  reports: WbsReport[]
+  declarations: TicketWithDetails[]
+  reports: TicketWithDetails[]
 }
 
 export default function StatsGrid({ declarations, reports }: StatsGridProps) {

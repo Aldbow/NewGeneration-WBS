@@ -4,12 +4,13 @@ import { Suspense, useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
-import { findTicket, getStatusLabel, getStatusDotColor, Ticket } from '@/lib/mock-data'
+import { lookupTicket, TicketWithDetails } from '@/lib/supabase-service'
+import { getStatusLabel, getStatusDotColor } from '@/lib/mock-data'
 import { formatDateShort } from '@/lib/ticket'
-import { Search, CheckCircle, AlertCircle, Clock, FileText, AlertTriangle } from 'lucide-react'
+import { Search, CheckCircle, AlertCircle, Clock, FileText, AlertTriangle, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 
-function TicketTimeline({ ticket }: { ticket: Ticket }) {
+function TicketTimeline({ ticket }: { ticket: TicketWithDetails }) {
   const dotColors: Record<string, string> = {
     DITERIMA: 'bg-blue-500',
     DIVERIFIKASI: 'bg-yellow-500',
@@ -64,9 +65,11 @@ function TicketTimeline({ ticket }: { ticket: Ticket }) {
 function CekTiketContent() {
   const searchParams = useSearchParams()
   const [query, setQuery] = useState(searchParams.get('id') || '')
-  const [result, setResult] = useState<Ticket | null>(null)
+  const [result, setResult] = useState<TicketWithDetails | null>(null)
   const [searched, setSearched] = useState(false)
   const [notFound, setNotFound] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [searchError, setSearchError] = useState('')
 
   useEffect(() => {
     const id = searchParams.get('id')
@@ -76,11 +79,24 @@ function CekTiketContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const doSearch = (q: string) => {
-    const found = findTicket(q.trim())
+  const doSearch = async (q: string) => {
+    setLoading(true)
+    setSearchError('')
     setSearched(true)
-    if (found) {
-      setResult(found)
+
+    const { ticket, error } = await lookupTicket(q.trim())
+
+    setLoading(false)
+
+    if (error) {
+      setSearchError(error)
+      setResult(null)
+      setNotFound(false)
+      return
+    }
+
+    if (ticket) {
+      setResult(ticket)
       setNotFound(false)
     } else {
       setResult(null)
@@ -126,9 +142,12 @@ function CekTiketContent() {
           <button
             id="ticket-search-btn"
             type="submit"
-            className="btn btn-primary px-6 py-4 text-sm whitespace-nowrap shrink-0"
+            disabled={loading}
+            className={`btn btn-primary px-6 py-4 text-sm whitespace-nowrap shrink-0 ${loading ? 'opacity-70 cursor-wait' : ''}`}
           >
-            Cek Status
+            {loading ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : 'Cek Status'}
           </button>
         </div>
         <p className="text-center text-sm text-[#94A3B8] mt-2">
@@ -136,8 +155,24 @@ function CekTiketContent() {
         </p>
       </form>
 
+      {/* Loading */}
+      {loading && (
+        <div className="max-w-xl mx-auto text-center py-8">
+          <Loader2 size={32} className="mx-auto mb-3 text-[#0A2558] animate-spin" />
+          <p className="text-sm text-[#475569]">Mencari tiket...</p>
+        </div>
+      )}
+
+      {/* Error */}
+      {searchError && !loading && (
+        <div className="max-w-xl mx-auto mb-4 p-4 bg-red-50 border border-red-200 rounded-2xl text-sm text-red-700 flex items-start gap-2" role="alert">
+          <AlertCircle size={16} className="shrink-0 mt-0.5" />
+          <span>{searchError}</span>
+        </div>
+      )}
+
       {/* Result */}
-      {result && (
+      {result && !loading && (
         <div id="ticket-result" className="max-w-xl mx-auto">
           {/* Status Header */}
           <div className={`border rounded-2xl p-5 mb-4 ${statusBg[result.status] || 'bg-gray-50 border-gray-200'}`}>
@@ -156,10 +191,10 @@ function CekTiketContent() {
                 <p className="font-heading font-bold text-[#1E293B] text-lg mb-1">
                   {result.ticketId}
                 </p>
-                {result.type === 'laporan' && (
+                {result.type === 'laporan' && result.title && (
                   <p className="text-sm text-[#475569]">{result.title}</p>
                 )}
-                {result.type === 'deklarasi' && (
+                {result.type === 'deklarasi' && result.nama && (
                   <p className="text-sm text-[#475569]">Oleh: {result.nama} — {result.jabatan}</p>
                 )}
               </div>
@@ -177,7 +212,7 @@ function CekTiketContent() {
         </div>
       )}
 
-      {notFound && (
+      {notFound && !loading && (
         <div id="ticket-not-found" className="max-w-xl mx-auto text-center card p-8">
           <AlertCircle size={40} className="mx-auto mb-4 text-[#94A3B8]" />
           <p className="font-heading font-bold text-[#1E293B] mb-2">Tiket Tidak Ditemukan</p>
@@ -231,3 +266,4 @@ export default function CekTiketPage() {
     </>
   )
 }
+

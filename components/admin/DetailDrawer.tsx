@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Ticket, getStatusColor, getStatusLabel, getUrgencyColor, TicketStatus } from '@/lib/mock-data'
+import { getStatusColor, getStatusLabel, getUrgencyColor, TicketStatus } from '@/lib/mock-data'
+import { TicketWithDetails } from '@/lib/supabase-service'
 import { formatDate } from '@/lib/ticket'
 import { X, FileText, AlertTriangle, User, Calendar, MapPin, Tag, Clock, CheckCircle } from 'lucide-react'
 import { useAdminStore } from '@/store/useAdminStore'
@@ -23,7 +24,7 @@ const dotColor: Record<TicketStatus, string> = {
 }
 
 interface DetailDrawerProps {
-  ticket: Ticket
+  ticket: TicketWithDetails
   onClose: () => void
 }
 
@@ -32,17 +33,25 @@ export default function DetailDrawer({ ticket, onClose }: DetailDrawerProps) {
   const [note, setNote] = useState('')
   const [updating, setUpdating] = useState(false)
   const [updated, setUpdated] = useState(false)
+  const [updateError, setUpdateError] = useState('')
   const updateTicketStatus = useAdminStore((s) => s.updateTicketStatus)
 
   const handleUpdate = async () => {
     if (newStatus === ticket.status && !note) return
     setUpdating(true)
-    await new Promise((r) => setTimeout(r, 800))
-    updateTicketStatus(ticket.ticketId, newStatus, note || undefined)
+    setUpdateError('')
+
+    const success = await updateTicketStatus(ticket.id, ticket.ticketId, newStatus, note || undefined)
+
     setUpdating(false)
-    setUpdated(true)
-    setNote('')
-    setTimeout(() => setUpdated(false), 3000)
+
+    if (success) {
+      setUpdated(true)
+      setNote('')
+      setTimeout(() => setUpdated(false), 3000)
+    } else {
+      setUpdateError('Gagal memperbarui status. Silakan coba lagi.')
+    }
   }
 
   return (
@@ -97,25 +106,34 @@ export default function DetailDrawer({ ticket, onClose }: DetailDrawerProps) {
           <div className="card p-4 space-y-3">
             {ticket.type === 'deklarasi' ? (
               <>
-                <DetailRow icon={User} label="Nama" value={ticket.nama} />
-                <DetailRow icon={Tag} label="NIP/NIK" value={ticket.nip} />
-                <DetailRow icon={FileText} label="Jabatan" value={ticket.jabatan} />
-                <DetailRow icon={FileText} label="Unit" value={ticket.unit} />
-                {ticket.keterangan && <DetailRow icon={FileText} label="Keterangan" value={ticket.keterangan} />}
+                {ticket.nama && <DetailRow icon={User} label="Nama" value={ticket.nama} />}
+                {ticket.nip && <DetailRow icon={Tag} label="NIP/NIK" value={ticket.nip} />}
+                {ticket.jabatan && <DetailRow icon={FileText} label="Jabatan" value={ticket.jabatan} />}
+                {ticket.unit && <DetailRow icon={FileText} label="Unit" value={ticket.unit} />}
+                {ticket.email && <DetailRow icon={FileText} label="Email" value={ticket.email} />}
+                {ticket.noHp && <DetailRow icon={FileText} label="No. HP" value={ticket.noHp} />}
+                {ticket.q1 && <DetailRow icon={FileText} label="Q1 - Hubungan Keluarga/Afiliasi" value={ticket.q1} />}
+                {ticket.q2 && <DetailRow icon={FileText} label="Q2 - Kepentingan Finansial" value={ticket.q2} />}
+                {ticket.q3 && <DetailRow icon={FileText} label="Q3 - Penerimaan Hadiah" value={ticket.q3} />}
+                {ticket.q4 && <DetailRow icon={FileText} label="Q4 - Tekanan/Paksaan" value={ticket.q4} />}
+                {ticket.q5 && <DetailRow icon={FileText} label="Q5 - Pernyataan Kebenaran" value={ticket.q5} />}
+                {ticket.keteranganLain && <DetailRow icon={FileText} label="Keterangan Tambahan" value={ticket.keteranganLain} />}
               </>
             ) : (
               <>
-                <DetailRow icon={Tag} label="Kategori" value={ticket.category} />
-                <DetailRow icon={FileText} label="Judul" value={ticket.title} />
-                <DetailRow icon={Calendar} label="Tanggal Kejadian" value={ticket.eventDate} />
+                {ticket.category && <DetailRow icon={Tag} label="Kategori" value={ticket.category} />}
+                {ticket.title && <DetailRow icon={FileText} label="Judul" value={ticket.title} />}
+                {ticket.eventDate && <DetailRow icon={Calendar} label="Tanggal Kejadian" value={ticket.eventDate} />}
                 {ticket.location && <DetailRow icon={MapPin} label="Lokasi" value={ticket.location} />}
-                <DetailRow icon={FileText} label="Bukti" value={`${ticket.filesCount} file dilampirkan`} />
-                <div>
-                  <p className="text-xs font-semibold text-[#475569] uppercase mb-1 flex items-center gap-1">
-                    <FileText size={11} /> Deskripsi
-                  </p>
-                  <p className="text-sm text-[#1E293B] leading-relaxed">{ticket.description}</p>
-                </div>
+                <DetailRow icon={FileText} label="Bukti" value={`${ticket.filesCount || 0} file dilampirkan`} />
+                {ticket.description && (
+                  <div>
+                    <p className="text-xs font-semibold text-[#475569] uppercase mb-1 flex items-center gap-1">
+                      <FileText size={11} /> Deskripsi
+                    </p>
+                    <p className="text-sm text-[#1E293B] leading-relaxed">{ticket.description}</p>
+                  </div>
+                )}
               </>
             )}
             <DetailRow icon={Clock} label="Diterima" value={formatDate(ticket.createdAt)} />
@@ -144,6 +162,9 @@ export default function DetailDrawer({ ticket, onClose }: DetailDrawerProps) {
                 rows={2}
                 className="form-input text-sm resize-none"
               />
+              {updateError && (
+                <p className="text-sm text-red-600" role="alert">{updateError}</p>
+              )}
               <button
                 id="update-status-btn"
                 onClick={handleUpdate}

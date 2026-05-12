@@ -9,7 +9,7 @@ import Step2Kuesioner, { QuestionnaireData } from '@/components/deklarasi/Step2K
 import Step3Signature, { SignatureData } from '@/components/deklarasi/Step3Signature'
 import Step4Sukses from '@/components/deklarasi/Step4Sukses'
 import AnimateIn from '@/components/ui/AnimateIn'
-import { generateTicketId } from '@/lib/ticket'
+import { submitDeclaration } from '@/lib/supabase-service'
 
 const STEPS = ['Data Diri', 'Kuesioner', 'Tanda Tangan', 'Selesai']
 
@@ -23,6 +23,8 @@ export default function DeklarasiPage() {
   const [currentStep, setCurrentStep] = useState(1)
   const [formData, setFormData] = useState<FormState>({})
   const [ticketId, setTicketId] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
 
   const handleStep1 = (data: Step1Data) => {
     setFormData((prev) => ({ ...prev, step1: data }))
@@ -36,10 +38,39 @@ export default function DeklarasiPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const handleStep3 = (data: SignatureData) => {
+  const handleStep3 = async (data: SignatureData) => {
     setFormData((prev) => ({ ...prev, step3: data }))
-    const ticket = generateTicketId('DKL')
-    setTicketId(ticket)
+    setSubmitting(true)
+    setSubmitError('')
+
+    const step1 = formData.step1!
+    const step2 = formData.step2!
+
+    const result = await submitDeclaration({
+      nama: step1.nama,
+      nip: step1.nip,
+      jabatan: step1.jabatan,
+      unit: step1.unit,
+      email: step1.email || undefined,
+      noHp: step1.noHp || undefined,
+      q1: step2.q1,
+      q2: step2.q2,
+      q3: step2.q3,
+      q4: step2.q4,
+      q5: step2.q5,
+      keteranganLain: step2.keteranganLain || undefined,
+      signatureDataUrl: data.signatureDataUrl,
+      agreed: data.agreed,
+    })
+
+    setSubmitting(false)
+
+    if (result.error || !result.ticketId) {
+      setSubmitError(result.error || 'Gagal mengirim deklarasi. Silakan coba lagi.')
+      return
+    }
+
+    setTicketId(result.ticketId)
     setCurrentStep(4)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -47,6 +78,7 @@ export default function DeklarasiPage() {
   const handleReset = () => {
     setFormData({})
     setTicketId('')
+    setSubmitError('')
     setCurrentStep(1)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -87,6 +119,14 @@ export default function DeklarasiPage() {
             </AnimateIn>
           )}
 
+          {/* Submit Error */}
+          {submitError && (
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-2xl text-sm text-red-700 flex items-start gap-2" role="alert">
+              <span className="shrink-0 mt-0.5">⚠️</span>
+              <span>{submitError}</span>
+            </div>
+          )}
+
           {/* Form Steps — each step slides up when it appears */}
           <AnimateIn
             key={currentStep}           /* key forces re-animation on step change */
@@ -114,6 +154,7 @@ export default function DeklarasiPage() {
                 onNext={handleStep3}
                 onBack={() => { setCurrentStep(2); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
                 userName={formData.step1?.nama}
+                isSubmitting={submitting}
               />
             )}
             {currentStep === 4 && ticketId && (

@@ -9,7 +9,7 @@ import {
   Shield, Lock, Eye, AlertCircle, CheckCircle, Copy, ExternalLink, Home
 } from 'lucide-react'
 import Link from 'next/link'
-import { generateTicketId } from '@/lib/ticket'
+import { submitWbsReport } from '@/lib/supabase-service'
 
 const CATEGORIES = [
   'Penyuapan/Gratifikasi',
@@ -27,6 +27,8 @@ export default function LaporPage() {
   const [copied, setCopied] = useState(false)
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [submitError, setSubmitError] = useState('')
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
 
   const [form, setForm] = useState({
     category: '',
@@ -54,12 +56,28 @@ export default function LaporPage() {
     const errs = validate()
     if (Object.keys(errs).length) { setErrors(errs); return }
     setErrors({})
+    setSubmitError('')
     setLoading(true)
-    await new Promise((r) => setTimeout(r, 1500))
-    const ticket = generateTicketId('WBS')
-    setTicketId(ticket)
-    setSubmitted(true)
+
+    const result = await submitWbsReport({
+      category: form.category,
+      title: form.title,
+      description: form.description,
+      eventDate: form.eventDate,
+      eventTime: form.eventTime || undefined,
+      location: form.location || undefined,
+      files: uploadedFiles.length > 0 ? uploadedFiles : undefined,
+    })
+
     setLoading(false)
+
+    if (result.error || !result.ticketId) {
+      setSubmitError(result.error || 'Gagal mengirim laporan. Silakan coba lagi.')
+      return
+    }
+
+    setTicketId(result.ticketId)
+    setSubmitted(true)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -287,8 +305,16 @@ export default function LaporPage() {
             {/* File Upload — slides from right */}
             <AnimateIn animation="slideRight" delay={360} threshold={0.05} className="card p-5">
               <label className="form-label">Bukti Pendukung (Opsional)</label>
-              <FileDropzone onFilesChange={() => {}} />
+              <FileDropzone onFilesChange={(files) => setUploadedFiles(files)} />
             </AnimateIn>
+
+            {/* Submit Error */}
+            {submitError && (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-sm text-red-700 flex items-start gap-2" role="alert">
+                <span className="shrink-0 mt-0.5">⚠️</span>
+                <span>{submitError}</span>
+              </div>
+            )}
 
             {/* Submit — slides up */}
             <AnimateIn animation="slideUp" delay={420} threshold={0.05}>

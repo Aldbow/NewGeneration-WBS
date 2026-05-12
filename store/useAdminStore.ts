@@ -1,19 +1,25 @@
 import { create } from 'zustand'
-import { MOCK_DECLARATIONS, MOCK_REPORTS, Declaration, WbsReport, Ticket, TicketStatus } from '@/lib/mock-data'
+import {
+  fetchAllTickets,
+  updateTicketStatusInDb,
+  TicketWithDetails,
+  TicketStatus,
+} from '@/lib/supabase-service'
 
 interface AdminStore {
   isAuthenticated: boolean
   login: (username: string, password: string) => boolean
   logout: () => void
 
-  declarations: Declaration[]
-  reports: WbsReport[]
-  allTickets: Ticket[]
+  tickets: TicketWithDetails[]
+  isLoading: boolean
+  fetchError: string | null
+  loadTickets: () => Promise<void>
 
-  selectedTicket: Ticket | null
-  setSelectedTicket: (ticket: Ticket | null) => void
+  selectedTicket: TicketWithDetails | null
+  setSelectedTicket: (ticket: TicketWithDetails | null) => void
 
-  updateTicketStatus: (ticketId: string, status: TicketStatus, note?: string) => void
+  updateTicketStatus: (ticketUuid: string, ticketId: string, status: TicketStatus, note?: string) => Promise<boolean>
 
   searchQuery: string
   setSearchQuery: (q: string) => void
@@ -29,6 +35,7 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
   isAuthenticated: false,
 
   login: (username, password) => {
+    // Demo authentication — for production, use Supabase Auth
     if (username === 'admin' && password === 'admin123') {
       set({ isAuthenticated: true })
       return true
@@ -36,16 +43,36 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
     return false
   },
 
-  logout: () => set({ isAuthenticated: false }),
+  logout: () => set({ isAuthenticated: false, tickets: [], selectedTicket: null }),
 
-  declarations: MOCK_DECLARATIONS,
-  reports: MOCK_REPORTS,
-  allTickets: [...MOCK_DECLARATIONS, ...MOCK_REPORTS],
+  tickets: [],
+  isLoading: false,
+  fetchError: null,
+
+  loadTickets: async () => {
+    set({ isLoading: true, fetchError: null })
+
+    const { tickets, error } = await fetchAllTickets()
+
+    if (error) {
+      set({ isLoading: false, fetchError: error })
+      return
+    }
+
+    set({ tickets, isLoading: false })
+  },
 
   selectedTicket: null,
   setSelectedTicket: (ticket) => set({ selectedTicket: ticket }),
 
-  updateTicketStatus: (ticketId, status, note) => {
+  updateTicketStatus: async (ticketUuid, ticketId, status, note) => {
+    const { success, error } = await updateTicketStatusInDb(ticketUuid, status, note)
+
+    if (!success) {
+      console.error('Failed to update ticket status:', error)
+      return false
+    }
+
     const now = new Date().toISOString()
     const labelMap: Record<TicketStatus, string> = {
       DITERIMA: 'Diterima',
@@ -55,10 +82,12 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
       DITOLAK: 'Ditolak',
     }
 
+    // Update local state to reflect the change immediately
     set((state) => {
-      const updateTicket = (ticket: Ticket): Ticket => {
-        if (ticket.ticketId !== ticketId) return ticket
-        const newEntry = { status, label: labelMap[status], date: now, note }
+      const newEntry = { status, label: labelMap[status], date: now, note }
+
+      const updateTicket = (ticket: TicketWithDetails): TicketWithDetails => {
+        if (ticket.id !== ticketUuid) return ticket
         return {
           ...ticket,
           status,
@@ -66,22 +95,18 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
         }
       }
 
-      const newDeclarations = state.declarations.map((d) => updateTicket(d) as Declaration)
-      const newReports = state.reports.map((r) => updateTicket(r) as WbsReport)
-      const newAll = [...newDeclarations, ...newReports]
-
-      // Update selected ticket if it matches
+      const newTickets = state.tickets.map(updateTicket)
       const updatedSelected = state.selectedTicket
         ? updateTicket(state.selectedTicket)
         : null
 
       return {
-        declarations: newDeclarations,
-        reports: newReports,
-        allTickets: newAll,
+        tickets: newTickets,
         selectedTicket: updatedSelected,
       }
     })
+
+    return true
   },
 
   searchQuery: '',
