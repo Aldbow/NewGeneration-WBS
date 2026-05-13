@@ -6,6 +6,7 @@ import { TicketWithDetails } from '@/lib/supabase-service'
 import { formatDate } from '@/lib/ticket'
 import { X, FileText, AlertTriangle, User, Calendar, MapPin, Tag, Clock, CheckCircle } from 'lucide-react'
 import { useAdminStore } from '@/store/useAdminStore'
+import { motion } from 'framer-motion'
 
 const STATUS_OPTIONS: { value: TicketStatus; label: string }[] = [
   { value: 'DITERIMA', label: 'Diterima' },
@@ -57,7 +58,10 @@ export default function DetailDrawer({ ticket, onClose }: DetailDrawerProps) {
   return (
     <>
       {/* Overlay */}
-      <div
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
         id="drawer-overlay"
         className="drawer-overlay"
         onClick={onClose}
@@ -65,7 +69,11 @@ export default function DetailDrawer({ ticket, onClose }: DetailDrawerProps) {
       />
 
       {/* Panel */}
-      <div
+      <motion.div
+        initial={{ x: '100%', opacity: 0.5 }}
+        animate={{ x: 0, opacity: 1 }}
+        exit={{ x: '100%', opacity: 0.5 }}
+        transition={{ type: 'spring', damping: 25, stiffness: 200 }}
         id="detail-drawer"
         className="drawer-panel"
         role="dialog"
@@ -201,7 +209,7 @@ export default function DetailDrawer({ ticket, onClose }: DetailDrawerProps) {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     </>
   )
 }

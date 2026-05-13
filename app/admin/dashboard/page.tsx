@@ -8,6 +8,7 @@ import StatsGrid from '@/components/admin/StatsGrid'
 import DataTable from '@/components/admin/DataTable'
 import DetailDrawer from '@/components/admin/DetailDrawer'
 import { Loader2, AlertCircle, RefreshCw, FileText, AlertTriangle, LayoutDashboard } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 
 function DashboardContent() {
   const router = useRouter()
@@ -74,17 +75,39 @@ function DashboardContent() {
   }
 
   return (
-    <div className="flex-1 flex flex-col min-w-0 lg:mt-0 mt-14">
+    <div className="flex-1 flex flex-col min-w-0 lg:mt-0 mt-14 overflow-hidden">
       {/* Top Bar */}
-      <header className="bg-white border-b border-[#E2E8F0] px-6 py-4 flex items-center justify-between sticky top-0 z-30">
+      <motion.header 
+        initial={{ y: -50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="bg-white border-b border-[#E2E8F0] px-6 py-4 flex items-center justify-between sticky top-0 z-30"
+      >
         <div className="flex items-center gap-3">
-          <div className="hidden sm:flex w-10 h-10 rounded-xl bg-[#F8FAFC] items-center justify-center text-[#0A2558] border border-[#E2E8F0]">
-            <HeaderIcon size={20} />
-          </div>
-          <div>
-            <h1 className="text-lg font-heading font-bold text-[#1E293B]">{title}</h1>
-            <p className="text-xs text-[#94A3B8]">{subtitle}</p>
-          </div>
+          <AnimatePresence mode="wait">
+            <motion.div 
+              key={title}
+              initial={{ scale: 0.8, opacity: 0, rotate: -90 }}
+              animate={{ scale: 1, opacity: 1, rotate: 0 }}
+              exit={{ scale: 0.8, opacity: 0, rotate: 90 }}
+              transition={{ duration: 0.3 }}
+              className="hidden sm:flex w-10 h-10 rounded-xl bg-[#F8FAFC] items-center justify-center text-[#0A2558] border border-[#E2E8F0]"
+            >
+              <HeaderIcon size={20} />
+            </motion.div>
+          </AnimatePresence>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={title}
+              initial={{ y: 10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -10, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <h1 className="text-lg font-heading font-bold text-[#1E293B]">{title}</h1>
+              <p className="text-xs text-[#94A3B8]">{subtitle}</p>
+            </motion.div>
+          </AnimatePresence>
         </div>
         <div className="flex items-center gap-3">
           <button
@@ -104,10 +127,16 @@ function DashboardContent() {
             <p className="text-xs text-[#94A3B8]">Super Admin</p>
           </div>
         </div>
-      </header>
+      </motion.header>
 
       {/* Content */}
-      <main id="dashboard-main" className="flex-1 p-4 sm:p-6">
+      <motion.main 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        id="dashboard-main" 
+        className="flex-1 p-4 sm:p-6 overflow-y-auto"
+      >
         {/* Loading State */}
         {isLoading && tickets.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -118,7 +147,12 @@ function DashboardContent() {
 
         {/* Error State */}
         {fetchError && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3" role="alert">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3" 
+            role="alert"
+          >
             <AlertCircle size={18} className="text-red-500 shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-semibold text-red-700">Gagal memuat data</p>
@@ -130,7 +164,7 @@ function DashboardContent() {
                 Coba lagi
               </button>
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* Stats & Table */}
@@ -151,22 +185,24 @@ function DashboardContent() {
             />
           </>
         )}
-      </main>
+      </motion.main>
 
       {/* Detail Drawer */}
-      {selectedTicket && (
-        <DetailDrawer
-          ticket={selectedTicket}
-          onClose={() => setSelectedTicket(null)}
-        />
-      )}
+      <AnimatePresence>
+        {selectedTicket && (
+          <DetailDrawer
+            ticket={selectedTicket}
+            onClose={() => setSelectedTicket(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   )
 }
 
 export default function AdminDashboardPage() {
   return (
-    <div id="admin-dashboard" className="flex min-h-screen bg-[#F8FAFC]">
+    <div id="admin-dashboard" className="flex h-screen bg-[#F8FAFC]">
       <Sidebar />
       <Suspense fallback={<div className="flex-1 flex items-center justify-center"><Loader2 className="animate-spin text-[#0A2558]" /></div>}>
         <DashboardContent />

@@ -4,6 +4,7 @@ import { useState, Suspense } from 'react'
 import Link from 'next/link'
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { useAdminStore } from '@/store/useAdminStore'
+import { motion } from 'framer-motion'
 import {
   Shield, LayoutDashboard, FileText, AlertTriangle,
   LogOut, Menu, X, ChevronRight
@@ -61,14 +62,16 @@ function SidebarInner() {
               id={`sidebar-${label.toLowerCase().replace(/\s/g, '-')}`}
               onClick={() => setMobileOpen(false)}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 ${active
-                  ? 'bg-[#0A2558] text-white shadow-md shadow-blue-900/20 translate-x-1'
-                  : 'text-[#475569] hover:bg-[#F1F5F9] hover:text-[#1E293B]'
+                  ? 'bg-[#0A2558] text-white shadow-md shadow-blue-900/20 scale-[1.02]'
+                  : 'text-[#475569] hover:bg-[#F1F5F9] hover:text-[#1E293B] hover:scale-[1.02]'
                 } ${collapsed ? 'justify-center' : ''}`}
               title={collapsed ? label : undefined}
             >
               <Icon size={18} className={`shrink-0 transition-transform ${active ? 'scale-110' : ''}`} />
               {!collapsed && <span>{label}</span>}
-              {!collapsed && active && <div className="w-1.5 h-1.5 rounded-full bg-blue-300 ml-auto" />}
+              {!collapsed && active && (
+                <div className="w-1.5 h-1.5 rounded-full bg-blue-300 ml-auto animate-pulse" />
+              )}
             </Link>
           )
         })}
