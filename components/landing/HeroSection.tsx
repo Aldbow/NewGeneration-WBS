@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { FileText, AlertTriangle, Shield, ArrowRight, Lock, Eye, Users } from 'lucide-react'
+import { FileText, AlertTriangle, Shield, ArrowRight, Lock, Users } from 'lucide-react'
 
 /* ─────────────────────────────────────────────
    Animated counter hook

@@ -5,7 +5,7 @@ import { getStatusColor, getStatusLabel, getUrgencyColor } from '@/lib/mock-data
 import { TicketWithDetails } from '@/lib/supabase-service'
 import { formatDateShort } from '@/lib/ticket'
 import { FileText, AlertTriangle, ChevronUp, ChevronDown, Eye, Search } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 
 interface DataTableProps {
   tickets: TicketWithDetails[]

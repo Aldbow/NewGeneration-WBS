@@ -2,9 +2,8 @@
 
 import { useState, Suspense } from 'react'
 import Link from 'next/link'
-import { useRouter, usePathname, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useAdminStore } from '@/store/useAdminStore'
-import { motion } from 'framer-motion'
 import {
   Shield, LayoutDashboard, FileText, AlertTriangle,
   LogOut, Menu, X, ChevronRight
