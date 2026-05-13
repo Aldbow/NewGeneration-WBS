@@ -6,6 +6,8 @@ import {
   CheckCircle, Lock, ArrowRight, Zap
 } from 'lucide-react'
 import AnimateIn from '@/components/ui/AnimateIn'
+import { useState, useEffect } from 'react'
+import { supabase } from '@/lib/supabase'
 
 const features = [
   {
@@ -58,11 +60,11 @@ const features = [
   },
 ]
 
-const stats = [
-  { value: '1.240+', label: 'Deklarasi & Laporan', icon: CheckCircle },
-  { value: '89%', label: 'Tingkat Penyelesaian', icon: AlertTriangle },
-  { value: '47', label: 'Unit Kerja Terlibat', icon: Shield },
-  { value: '< 24 Jam', label: 'Rata-rata Respons', icon: Clock },
+const DEFAULT_STATS = [
+  { value: '0', label: 'Total Tiket Masuk', icon: FileText },
+  { value: '0%', label: 'Tingkat Penyelesaian', icon: CheckCircle },
+  { value: '0', label: 'Total Deklarasi', icon: Shield },
+  { value: '0', label: 'Laporan WBS', icon: AlertTriangle },
 ]
 
 // Animation type cycling for cards: slideLeft, slideUp, slideRight in rows
@@ -72,6 +74,32 @@ const CARD_ANIMATIONS = [
 ] as const
 
 export default function FeatureGrid() {
+  const [statsData, setStatsData] = useState(DEFAULT_STATS)
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const { count: total } = await supabase.from('tickets').select('*', { count: 'exact', head: true })
+        const { count: selesai } = await supabase.from('tickets').select('*', { count: 'exact', head: true }).eq('status', 'SELESAI')
+        const { count: deklarasi } = await supabase.from('tickets').select('*', { count: 'exact', head: true }).eq('type', 'DEKLARASI')
+        const { count: laporan } = await supabase.from('tickets').select('*', { count: 'exact', head: true }).eq('type', 'LAPORAN')
+
+        if (total !== null) {
+          const rate = total > 0 && selesai !== null ? Math.round((selesai / total) * 100) : 0
+          setStatsData([
+            { value: total.toString(), label: 'Total Tiket Masuk', icon: FileText },
+            { value: `${rate}%`, label: 'Tingkat Penyelesaian', icon: CheckCircle },
+            { value: (deklarasi || 0).toString(), label: 'Total Deklarasi', icon: Shield },
+            { value: (laporan || 0).toString(), label: 'Laporan WBS', icon: AlertTriangle },
+          ])
+        }
+      } catch (err) {
+        console.error('Error fetching feature stats:', err)
+      }
+    }
+    fetchStats()
+  }, [])
+
   return (
     <section id="features" className="py-24 bg-[#F8FAFC]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -113,7 +141,7 @@ export default function FeatureGrid() {
         {/* ── Stats Row ── */}
         <AnimateIn animation="slideUp" delay={100} className="card p-0 overflow-hidden mb-16">
           <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-[#F1F5F9]">
-            {stats.map(({ value, label, icon: Icon }, i) => (
+            {statsData.map(({ value, label, icon: Icon }, i) => (
               <AnimateIn
                 key={label}
                 animation="scaleUp"

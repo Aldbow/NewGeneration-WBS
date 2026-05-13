@@ -35,7 +35,21 @@ export default function DetailDrawer({ ticket, onClose }: DetailDrawerProps) {
   const [updating, setUpdating] = useState(false)
   const [updated, setUpdated] = useState(false)
   const [updateError, setUpdateError] = useState('')
+  const [generatingPdf, setGeneratingPdf] = useState(false)
   const updateTicketStatus = useAdminStore((s) => s.updateTicketStatus)
+
+  const handleGeneratePdf = async () => {
+    try {
+      setGeneratingPdf(true)
+      const { generateDeclarationPdf } = await import('@/lib/pdf-generator')
+      await generateDeclarationPdf(ticket)
+    } catch (error) {
+      console.error('Error generating PDF:', error)
+      alert('Gagal menghasilkan PDF.')
+    } finally {
+      setGeneratingPdf(false)
+    }
+  }
 
   const handleUpdate = async () => {
     if (newStatus === ticket.status && !note) return
@@ -126,6 +140,21 @@ export default function DetailDrawer({ ticket, onClose }: DetailDrawerProps) {
                 {ticket.q4 && <DetailRow icon={FileText} label="Q4 - Tekanan/Paksaan" value={ticket.q4} />}
                 {ticket.q5 && <DetailRow icon={FileText} label="Q5 - Pernyataan Kebenaran" value={ticket.q5} />}
                 {ticket.keteranganLain && <DetailRow icon={FileText} label="Keterangan Tambahan" value={ticket.keteranganLain} />}
+                
+                <div className="pt-4 mt-2 border-t border-[#E2E8F0]">
+                  <button
+                    id="download-pdf-btn"
+                    onClick={handleGeneratePdf}
+                    disabled={generatingPdf}
+                    className={`btn bg-white border border-[#CBD5E1] text-[#475569] hover:bg-[#F8FAFC] w-full text-sm py-2 flex items-center justify-center gap-2 font-medium ${generatingPdf ? 'opacity-70 cursor-wait' : ''}`}
+                  >
+                    {generatingPdf ? (
+                      <><div className="w-4 h-4 border-2 border-[#94A3B8]/30 border-t-[#94A3B8] rounded-full animate-spin" /> Menyiapkan PDF...</>
+                    ) : (
+                      <><FileText size={16} className="text-violet-500" /> Lihat Dokumen PDF</>
+                    )}
+                  </button>
+                </div>
               </>
             ) : (
               <>

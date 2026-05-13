@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { FileText, AlertTriangle, Shield, ArrowRight, Lock, Users } from 'lucide-react'
+import { FileText, AlertTriangle, Shield, ArrowRight, Lock, CheckCircle } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
 
 /* ─────────────────────────────────────────────
    Animated counter hook
@@ -24,23 +25,47 @@ function useCounter(target: number, duration = 2000, start = false) {
   return count
 }
 
-const STATS = [
-  { label: 'Deklarasi & Laporan', value: 1240, suffix: '+', icon: FileText },
-  { label: 'Tingkat Penyelesaian', value: 89, suffix: '%', icon: Shield },
-  { label: 'Unit Kerja', value: 47, suffix: '', icon: Users },
-  { label: 'Anonim & Aman', value: 100, suffix: '%', icon: Lock },
+const DEFAULT_STATS = [
+  { id: 'total', label: 'Tiket Masuk', value: 0, suffix: '', icon: FileText },
+  { id: 'selesai', label: 'Tiket Selesai', value: 0, suffix: '', icon: CheckCircle },
+  { id: 'deklarasi', label: 'Deklarasi', value: 0, suffix: '', icon: Shield },
+  { id: 'laporan', label: 'Laporan WBS', value: 0, suffix: '', icon: AlertTriangle },
 ]
 
 export default function HeroSection() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const sectionRef = useRef<HTMLElement>(null)
   const [countersStarted, setCountersStarted] = useState(false)
-  const c = [
-    useCounter(STATS[0].value, 2200, countersStarted),
-    useCounter(STATS[1].value, 1800, countersStarted),
-    useCounter(STATS[2].value, 1600, countersStarted),
-    useCounter(STATS[3].value, 1400, countersStarted),
-  ]
+  const [stats, setStats] = useState(DEFAULT_STATS)
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const { count: total } = await supabase.from('tickets').select('*', { count: 'exact', head: true })
+        const { count: selesai } = await supabase.from('tickets').select('*', { count: 'exact', head: true }).eq('status', 'SELESAI')
+        const { count: deklarasi } = await supabase.from('tickets').select('*', { count: 'exact', head: true }).eq('type', 'DEKLARASI')
+        const { count: laporan } = await supabase.from('tickets').select('*', { count: 'exact', head: true }).eq('type', 'LAPORAN')
+
+        if (total !== null) {
+          setStats([
+            { id: 'total', label: 'Total Tiket Masuk', value: total, suffix: '', icon: FileText },
+            { id: 'selesai', label: 'Tiket Selesai', value: selesai || 0, suffix: '', icon: CheckCircle },
+            { id: 'deklarasi', label: 'Total Deklarasi', value: deklarasi || 0, suffix: '', icon: Shield },
+            { id: 'laporan', label: 'Laporan WBS', value: laporan || 0, suffix: '', icon: AlertTriangle },
+          ])
+        }
+      } catch (err) {
+        console.error('Error fetching stats:', err)
+      }
+    }
+    fetchStats()
+  }, [])
+
+  const c0 = useCounter(stats[0].value, 2200, countersStarted)
+  const c1 = useCounter(stats[1].value, 1800, countersStarted)
+  const c2 = useCounter(stats[2].value, 1600, countersStarted)
+  const c3 = useCounter(stats[3].value, 1400, countersStarted)
+  const c = [c0, c1, c2, c3]
 
   /* ── Star / Grid Canvas ── */
   useEffect(() => {
@@ -262,8 +287,8 @@ export default function HeroSection() {
         <div className="hero-stats-bar">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-white/10">
-              {STATS.map(({ label, suffix, icon: Icon }, i) => (
-                <div key={label} className={`px-6 py-5 text-center group hover:bg-white/5 transition-colors hero-enter hero-stat-${i}`}>
+              {stats.map(({ id, label, suffix, icon: Icon }, i) => (
+                <div key={id} className={`px-6 py-5 text-center group hover:bg-white/5 transition-colors hero-enter hero-stat-${i}`}>
                   <Icon size={16} className="mx-auto mb-2 text-cyan-400 opacity-60 group-hover:opacity-100 transition-opacity" />
                   <p className="text-2xl sm:text-3xl font-heading font-bold text-white leading-none">
                     {c[i]}{suffix}
