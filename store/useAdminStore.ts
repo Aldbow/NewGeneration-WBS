@@ -2,20 +2,14 @@ import { create } from 'zustand'
 import {
   fetchAllTickets,
   updateTicketStatusInDb,
-  deleteTicketFromDb,
   TicketWithDetails,
   TicketStatus,
 } from '@/lib/supabase-service'
-
-export type AdminTab = 'dashboard' | 'deklarasi' | 'laporan'
 
 interface AdminStore {
   isAuthenticated: boolean
   login: (username: string, password: string) => boolean
   logout: () => void
-
-  activeTab: AdminTab
-  setActiveTab: (tab: AdminTab) => void
 
   tickets: TicketWithDetails[]
   isLoading: boolean
@@ -26,7 +20,6 @@ interface AdminStore {
   setSelectedTicket: (ticket: TicketWithDetails | null) => void
 
   updateTicketStatus: (ticketUuid: string, ticketId: string, status: TicketStatus, note?: string) => Promise<boolean>
-  deleteTicket: (ticketUuid: string) => Promise<boolean>
 
   searchQuery: string
   setSearchQuery: (q: string) => void
@@ -50,10 +43,7 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
     return false
   },
 
-  logout: () => set({ isAuthenticated: false, tickets: [], selectedTicket: null, activeTab: 'dashboard' }),
-
-  activeTab: 'dashboard',
-  setActiveTab: (tab) => set({ activeTab: tab, searchQuery: '', filterStatus: 'all' }),
+  logout: () => set({ isAuthenticated: false, tickets: [], selectedTicket: null }),
 
   tickets: [],
   isLoading: false,
@@ -115,23 +105,6 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
         selectedTicket: updatedSelected,
       }
     })
-
-    return true
-  },
-
-  deleteTicket: async (ticketUuid) => {
-    const { success, error } = await deleteTicketFromDb(ticketUuid)
-
-    if (!success) {
-      console.error('Failed to delete ticket:', error)
-      return false
-    }
-
-    // Remove from local state
-    set((state) => ({
-      tickets: state.tickets.filter((t) => t.id !== ticketUuid),
-      selectedTicket: state.selectedTicket?.id === ticketUuid ? null : state.selectedTicket,
-    }))
 
     return true
   },
