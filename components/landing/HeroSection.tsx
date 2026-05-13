@@ -42,7 +42,7 @@ export default function HeroSection() {
     const fetchStats = async () => {
       try {
         const { count: total } = await supabase.from('tickets').select('*', { count: 'exact', head: true })
-        const { count: selesai } = await supabase.from('tickets').select('*', { count: 'exact', head: true }).eq('status', 'SELESAI')
+        const { count: selesai } = await supabase.from('tickets').select('*', { count: 'exact', head: true }).in('status', ['SELESAI', 'DITOLAK'])
         const { count: deklarasi } = await supabase.from('tickets').select('*', { count: 'exact', head: true }).eq('type', 'DEKLARASI')
         const { count: laporan } = await supabase.from('tickets').select('*', { count: 'exact', head: true }).eq('type', 'LAPORAN')
 

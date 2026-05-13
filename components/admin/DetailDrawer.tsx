@@ -170,11 +170,12 @@ export default function DetailDrawer({ ticket, onClose }: DetailDrawerProps) {
                 {ticket.location && <DetailRow icon={MapPin} label="Lokasi" value={ticket.location} />}
                 <DetailRow icon={FileText} label="Bukti" value={`${ticket.filesCount || 0} file dilampirkan`} />
                 {ticket.description && (
-                  <div>
-                    <p className="text-xs font-semibold text-[#475569] uppercase mb-1 flex items-center gap-1">
-                      <FileText size={11} /> Deskripsi
-                    </p>
-                    <p className="text-sm text-[#1E293B] leading-relaxed">{ticket.description}</p>
+                  <div className="flex items-start gap-2">
+                    <FileText size={13} className="text-[#94A3B8] mt-0.5 shrink-0" aria-hidden="true" />
+                    <div>
+                      <p className="text-xs text-[#94A3B8] uppercase font-semibold tracking-wide">Deskripsi</p>
+                      <p className="text-sm text-[#1E293B] leading-relaxed whitespace-pre-wrap mt-0.5">{ticket.description}</p>
+                    </div>
                   </div>
                 )}
                 {(!ticket.category && !ticket.title) && (

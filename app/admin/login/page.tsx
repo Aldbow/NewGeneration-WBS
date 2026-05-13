@@ -6,6 +6,8 @@ import { useAdminStore } from '@/store/useAdminStore'
 import { Shield, Eye, EyeOff, AlertCircle, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import { supabase } from '@/lib/supabase'
+import { useEffect } from 'react'
 
 export default function AdminLoginPage() {
   const [username, setUsername] = useState('')
@@ -15,6 +17,36 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false)
   const login = useAdminStore((s) => s.login)
   const router = useRouter()
+
+  const [stats, setStats] = useState([
+    { label: 'Total Tiket', value: '...' },
+    { label: 'Menunggu Review', value: '...' },
+    { label: 'Selesai', value: '...' },
+    { label: 'Tingkat Selesai', value: '...' },
+  ])
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const { count: total } = await supabase.from('tickets').select('*', { count: 'exact', head: true })
+        const { count: menunggu } = await supabase.from('tickets').select('*', { count: 'exact', head: true }).in('status', ['DITERIMA', 'DIVERIFIKASI'])
+        const { count: selesai } = await supabase.from('tickets').select('*', { count: 'exact', head: true }).in('status', ['SELESAI', 'DITOLAK'])
+
+        if (total !== null) {
+          const rate = total > 0 ? Math.round(((selesai || 0) / total) * 100) : 0
+          setStats([
+            { label: 'Total Tiket', value: String(total) },
+            { label: 'Menunggu Review', value: String(menunggu || 0) },
+            { label: 'Selesai', value: String(selesai || 0) },
+            { label: 'Tingkat Selesai', value: `${rate}%` },
+          ])
+        }
+      } catch (err) {
+        console.error('Error fetching login stats:', err)
+      }
+    }
+    fetchStats()
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -73,12 +105,7 @@ export default function AdminLoginPage() {
             Dashboard manajemen untuk memantau dan menangani seluruh laporan deklarasi dan pelanggaran secara terpusat.
           </p>
           <div className="grid grid-cols-2 gap-3">
-            {[
-              { label: 'Total Laporan', value: '5' },
-              { label: 'Menunggu Review', value: '2' },
-              { label: 'Selesai', value: '2' },
-              { label: 'Tingkat Selesai', value: '89%' },
-            ].map(({ label, value }, idx) => (
+            {stats.map(({ label, value }, idx) => (
               <motion.div 
                 key={label} 
                 initial={{ opacity: 0, y: 10 }}
