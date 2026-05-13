@@ -4,8 +4,9 @@ import { useState } from 'react'
 import { getStatusColor, getStatusLabel, getUrgencyColor } from '@/lib/mock-data'
 import { TicketWithDetails } from '@/lib/supabase-service'
 import { formatDateShort } from '@/lib/ticket'
-import { FileText, AlertTriangle, ChevronUp, ChevronDown, Eye, Search } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { FileText, AlertTriangle, ChevronUp, ChevronDown, Eye, Search, Trash2, Loader2, X } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useAdminStore } from '@/store/useAdminStore'
 
 interface DataTableProps {
   tickets: TicketWithDetails[]
@@ -30,6 +31,26 @@ export default function DataTable({
 }: DataTableProps) {
   const [sortKey, setSortKey] = useState<SortKey>('createdAt')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
+
+  // Delete Modal State
+  const [deleteTarget, setDeleteTarget] = useState<TicketWithDetails | null>(null)
+  const [deleteNote, setDeleteNote] = useState('')
+  const [isDeleting, setIsDeleting] = useState(false)
+  const deleteTicketPermanently = useAdminStore((s) => s.deleteTicketPermanently)
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return
+    setIsDeleting(true)
+    const prefix = 'DIHAPUS OLEH ADMIN'
+    const finalNote = deleteNote.trim() ? `${prefix}: ${deleteNote.trim()}` : prefix
+    
+    // Hard delete data while keeping the ticket and timeline
+    await deleteTicketPermanently(deleteTarget.id, deleteTarget.ticketId, deleteTarget.type, finalNote)
+    
+    setIsDeleting(false)
+    setDeleteTarget(null)
+    setDeleteNote('')
+  }
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -168,12 +189,18 @@ export default function DataTable({
                     </div>
                   </td>
                   <td className="px-4 py-3 max-w-[200px]">
-                    <p className="text-sm font-medium text-[#1E293B] truncate">
-                      {ticket.type === 'deklarasi' ? (ticket.nama || '-') : (ticket.title || '-')}
-                    </p>
-                    <p className="text-xs text-[#94A3B8] truncate">
-                      {ticket.type === 'deklarasi' ? (ticket.jabatan || '-') : (ticket.category || '-')}
-                    </p>
+                    {((ticket.type === 'deklarasi' && !ticket.nama && !ticket.nip) || (ticket.type === 'laporan' && !ticket.title && !ticket.category)) ? (
+                      <p className="text-sm font-medium text-red-500 italic truncate">(Data Terhapus)</p>
+                    ) : (
+                      <>
+                        <p className="text-sm font-medium text-[#1E293B] truncate">
+                          {ticket.type === 'deklarasi' ? (ticket.nama || '-') : (ticket.title || '-')}
+                        </p>
+                        <p className="text-xs text-[#94A3B8] truncate">
+                          {ticket.type === 'deklarasi' ? (ticket.jabatan || '-') : (ticket.category || '-')}
+                        </p>
+                      </>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-xs text-[#475569] whitespace-nowrap">
                     {formatDateShort(ticket.createdAt)}
@@ -189,14 +216,24 @@ export default function DataTable({
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <button
-                      id={`view-ticket-${ticket.ticketId}`}
-                      onClick={(e) => { e.stopPropagation(); onSelect(ticket) }}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#EFF6FF] text-[#0A2558] text-xs font-semibold hover:bg-[#DBEAFE] transition"
-                      aria-label={`Lihat detail ${ticket.ticketId}`}
-                    >
-                      <Eye size={13} /> Detail
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        id={`view-ticket-${ticket.ticketId}`}
+                        onClick={(e) => { e.stopPropagation(); onSelect(ticket) }}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#EFF6FF] text-[#0A2558] text-xs font-semibold hover:bg-[#DBEAFE] transition"
+                        aria-label={`Lihat detail ${ticket.ticketId}`}
+                      >
+                        <Eye size={13} /> Detail
+                      </button>
+                      <button
+                        id={`delete-ticket-${ticket.ticketId}`}
+                        onClick={(e) => { e.stopPropagation(); setDeleteTarget(ticket) }}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 text-red-600 text-xs font-semibold hover:bg-red-100 transition"
+                        aria-label={`Hapus tiket ${ticket.ticketId}`}
+                      >
+                        <Trash2 size={13} /> Hapus
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -208,6 +245,87 @@ export default function DataTable({
       <div className="px-4 py-3 border-t border-[#E2E8F0] text-xs text-[#94A3B8]">
         Menampilkan {filtered.length} dari {tickets.length} tiket
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {deleteTarget && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-[#0A1628]/40 backdrop-blur-sm"
+              onClick={() => !isDeleting && setDeleteTarget(null)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="relative bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden"
+            >
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+                      <Trash2 size={20} />
+                    </div>
+                    <h3 className="text-lg font-heading font-bold text-[#1E293B]">Hapus Tiket</h3>
+                  </div>
+                  <button
+                    onClick={() => !isDeleting && setDeleteTarget(null)}
+                    className="p-2 text-[#94A3B8] hover:bg-[#F1F5F9] rounded-xl transition"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+                
+                <p className="text-sm text-[#475569] mb-4">
+                  Anda yakin ingin menghapus tiket <strong className="text-[#1E293B]">{deleteTarget.ticketId}</strong>?
+                  <br/>
+                  Tiket ini beserta seluruh data laporannya (termasuk lampiran/tanda tangan) akan dihapus secara fisik dan tidak dapat dipulihkan.
+                  Namun, riwayat nomor tiket akan tetap tercatat di timeline.
+                </p>
+
+                <div className="mb-6">
+                  <label htmlFor="delete-note" className="block text-xs font-semibold text-[#475569] mb-1.5 uppercase tracking-wide">
+                    Alasan Penghapusan (Opsional)
+                  </label>
+                  <textarea
+                    id="delete-note"
+                    rows={3}
+                    placeholder="Contoh: Tiket spam, data duplikat, dll."
+                    value={deleteNote}
+                    onChange={(e) => setDeleteNote(e.target.value)}
+                    className="form-input text-sm resize-none"
+                    disabled={isDeleting}
+                  />
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setDeleteTarget(null)}
+                    disabled={isDeleting}
+                    className="flex-1 px-4 py-2.5 rounded-xl border border-[#E2E8F0] text-[#475569] font-semibold text-sm hover:bg-[#F8FAFC] transition disabled:opacity-50"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    onClick={handleDeleteConfirm}
+                    disabled={isDeleting}
+                    className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 text-white font-semibold text-sm hover:bg-red-700 transition shadow-[0_4px_12px_rgba(220,38,38,0.25)] flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-wait"
+                  >
+                    {isDeleting ? (
+                      <><Loader2 size={16} className="animate-spin" /> Menghapus...</>
+                    ) : (
+                      'Konfirmasi Hapus'
+                    )}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </motion.div>
   )
 }

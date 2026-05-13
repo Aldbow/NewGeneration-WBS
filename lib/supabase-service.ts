@@ -652,3 +652,45 @@ export async function updateTicketStatusInDb(
     return { success: false, error: 'Terjadi kesalahan tidak terduga' }
   }
 }
+
+// ──────────────────────────────────────────────
+// ADMIN: DELETE TICKET DATA (HARD DELETE)
+// ──────────────────────────────────────────────
+
+export async function deleteTicketData(
+  ticketUuid: string,
+  type: 'deklarasi' | 'laporan'
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    if (type === 'deklarasi') {
+      // Delete signature if exists
+      const { data: decl } = await supabase
+        .from('declarations')
+        .select('signature_path')
+        .eq('ticket_id', ticketUuid)
+        .maybeSingle()
+
+      if (decl?.signature_path) {
+        await supabase.storage.from('signatures').remove([decl.signature_path])
+      }
+
+      const { error } = await supabase.from('declarations').delete().eq('ticket_id', ticketUuid)
+      if (error) throw error
+    } else {
+      // Delete evidence files if exists
+      const { data: files } = await supabase.storage.from('wbs-evidence').list(ticketUuid)
+      if (files && files.length > 0) {
+        const filePaths = files.map((f) => `${ticketUuid}/${f.name}`)
+        await supabase.storage.from('wbs-evidence').remove(filePaths)
+      }
+
+      const { error } = await supabase.from('wbs_reports').delete().eq('ticket_id', ticketUuid)
+      if (error) throw error
+    }
+
+    return { success: true }
+  } catch (err: any) {
+    console.error('Error deleting ticket physical data:', err)
+    return { success: false, error: err.message || 'Terjadi kesalahan saat menghapus data' }
+  }
+}

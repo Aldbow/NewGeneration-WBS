@@ -126,6 +126,11 @@ export default function DetailDrawer({ ticket, onClose }: DetailDrawerProps) {
 
           {/* Details */}
           <div className="card p-4 space-y-3">
+            {ticket.type === 'deklarasi' && (!ticket.nama && !ticket.nip) && (
+              <div className="text-center py-4 bg-red-50 text-red-500 text-sm font-medium rounded-lg border border-red-100 italic">
+                Data Deklarasi telah dihapus permanen.
+              </div>
+            )}
             {ticket.type === 'deklarasi' ? (
               <>
                 {ticket.nama && <DetailRow icon={User} label="Nama" value={ticket.nama} />}
@@ -140,21 +145,22 @@ export default function DetailDrawer({ ticket, onClose }: DetailDrawerProps) {
                 {ticket.q4 && <DetailRow icon={FileText} label="Q4 - Tekanan/Paksaan" value={ticket.q4} />}
                 {ticket.q5 && <DetailRow icon={FileText} label="Q5 - Pernyataan Kebenaran" value={ticket.q5} />}
                 {ticket.keteranganLain && <DetailRow icon={FileText} label="Keterangan Tambahan" value={ticket.keteranganLain} />}
-                
-                <div className="pt-4 mt-2 border-t border-[#E2E8F0]">
-                  <button
-                    id="download-pdf-btn"
-                    onClick={handleGeneratePdf}
-                    disabled={generatingPdf}
-                    className={`btn bg-white border border-[#CBD5E1] text-[#475569] hover:bg-[#F8FAFC] w-full text-sm py-2 flex items-center justify-center gap-2 font-medium ${generatingPdf ? 'opacity-70 cursor-wait' : ''}`}
-                  >
-                    {generatingPdf ? (
-                      <><div className="w-4 h-4 border-2 border-[#94A3B8]/30 border-t-[#94A3B8] rounded-full animate-spin" /> Menyiapkan PDF...</>
-                    ) : (
-                      <><FileText size={16} className="text-violet-500" /> Lihat Dokumen PDF</>
-                    )}
-                  </button>
-                </div>
+                {(ticket.nama || ticket.nip) && (
+                  <div className="pt-4 mt-2 border-t border-[#E2E8F0]">
+                    <button
+                      id="download-pdf-btn"
+                      onClick={handleGeneratePdf}
+                      disabled={generatingPdf}
+                      className={`btn bg-white border border-[#CBD5E1] text-[#475569] hover:bg-[#F8FAFC] w-full text-sm py-2 flex items-center justify-center gap-2 font-medium ${generatingPdf ? 'opacity-70 cursor-wait' : ''}`}
+                    >
+                      {generatingPdf ? (
+                        <><div className="w-4 h-4 border-2 border-[#94A3B8]/30 border-t-[#94A3B8] rounded-full animate-spin" /> Menyiapkan PDF...</>
+                      ) : (
+                        <><FileText size={16} className="text-violet-500" /> Lihat Dokumen PDF</>
+                      )}
+                    </button>
+                  </div>
+                )}
               </>
             ) : (
               <>
@@ -169,6 +175,11 @@ export default function DetailDrawer({ ticket, onClose }: DetailDrawerProps) {
                       <FileText size={11} /> Deskripsi
                     </p>
                     <p className="text-sm text-[#1E293B] leading-relaxed">{ticket.description}</p>
+                  </div>
+                )}
+                {(!ticket.category && !ticket.title) && (
+                  <div className="text-center py-4 bg-red-50 text-red-500 text-sm font-medium rounded-lg border border-red-100 italic">
+                    Data Laporan telah dihapus permanen.
                   </div>
                 )}
               </>
