@@ -1,32 +1,35 @@
 'use client'
 
-import { useState, Suspense } from 'react'
-import Link from 'next/link'
-import { useRouter, usePathname, useSearchParams } from 'next/navigation'
-import { useAdminStore } from '@/store/useAdminStore'
-import { motion } from 'framer-motion'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useAdminStore, AdminTab } from '@/store/useAdminStore'
 import {
   Shield, LayoutDashboard, FileText, AlertTriangle,
   LogOut, Menu, X, ChevronRight
 } from 'lucide-react'
 
-const navItems = [
-  { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/admin/dashboard?tab=deklarasi', label: 'Deklarasi', icon: FileText },
-  { href: '/admin/dashboard?tab=laporan', label: 'Laporan WBS', icon: AlertTriangle },
+const navItems: { tab: AdminTab; label: string; icon: React.ElementType }[] = [
+  { tab: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { tab: 'deklarasi', label: 'Deklarasi', icon: FileText },
+  { tab: 'laporan', label: 'Laporan WBS', icon: AlertTriangle },
 ]
 
 function SidebarInner() {
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const logout = useAdminStore((s) => s.logout)
+  const activeTab = useAdminStore((s) => s.activeTab)
+  const setActiveTab = useAdminStore((s) => s.setActiveTab)
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const currentTab = searchParams.get('tab') || ''
 
   const handleLogout = () => {
     logout()
     router.push('/admin/login')
+  }
+
+  const handleNav = (tab: AdminTab) => {
+    setActiveTab(tab)
+    setMobileOpen(false)
   }
 
   const SidebarContent = () => (
@@ -45,34 +48,24 @@ function SidebarInner() {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 p-3 space-y-1.5" aria-label="Admin navigation">
-        {navItems.map(({ href, label, icon: Icon }) => {
-          // Extract tab from href for comparison
-          let itemTab = ''
-          if (href.includes('?tab=')) {
-            itemTab = href.split('?tab=')[1]
-          }
-          
-          const active = currentTab === itemTab
-
+      <nav className="flex-1 p-3 space-y-1" aria-label="Admin navigation">
+        {navItems.map(({ tab, label, icon: Icon }) => {
+          const active = activeTab === tab
           return (
-            <Link
-              key={href}
-              href={href}
+            <button
+              key={tab}
               id={`sidebar-${label.toLowerCase().replace(/\s/g, '-')}`}
-              onClick={() => setMobileOpen(false)}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 ${active
-                  ? 'bg-[#0A2558] text-white shadow-md shadow-blue-900/20 scale-[1.02]'
-                  : 'text-[#475569] hover:bg-[#F1F5F9] hover:text-[#1E293B] hover:scale-[1.02]'
+              onClick={() => handleNav(tab)}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all w-full text-left ${active
+                ? 'bg-[#0A2558] text-white shadow-lg shadow-[#0A2558]/20'
+                : 'text-[#475569] hover:bg-[#F1F5F9] hover:text-[#1E293B]'
                 } ${collapsed ? 'justify-center' : ''}`}
               title={collapsed ? label : undefined}
             >
               <Icon size={18} className={`shrink-0 transition-transform ${active ? 'scale-110' : ''}`} />
               {!collapsed && <span>{label}</span>}
-              {!collapsed && active && (
-                <div className="w-1.5 h-1.5 rounded-full bg-blue-300 ml-auto animate-pulse" />
-              )}
-            </Link>
+              {!collapsed && <ChevronRight size={14} className={`ml-auto transition-transform ${active ? 'opacity-70' : 'opacity-40'}`} />}
+            </button>
           )
         })}
       </nav>
