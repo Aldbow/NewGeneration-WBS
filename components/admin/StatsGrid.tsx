@@ -2,7 +2,7 @@
 
 import { FileText, AlertTriangle, CheckCircle, Clock, TrendingUp, Users } from 'lucide-react'
 import { TicketWithDetails } from '@/lib/supabase-service'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, Variants } from 'framer-motion'
 
 interface StatsGridProps {
   declarations: TicketWithDetails[]
@@ -160,7 +160,7 @@ export default function StatsGrid({ declarations, reports, activeTab = 'all' }: 
     ]
   }
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -168,7 +168,7 @@ export default function StatsGrid({ declarations, reports, activeTab = 'all' }: 
     }
   }
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } },
     exit: { opacity: 0, scale: 0.95, transition: { duration: 0.2 } }
