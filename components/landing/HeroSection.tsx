@@ -207,14 +207,6 @@ export default function HeroSection() {
                   Buat Deklarasi
                   <ArrowRight size={18} className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
                 </Link>
-                <Link
-                  href="/lapor"
-                  id="hero-cta-lapor"
-                  className="group flex items-center justify-center gap-3 px-8 py-4 rounded-2xl font-heading font-bold text-base transition-all duration-300 hero-btn-secondary"
-                >
-                  <AlertTriangle size={20} />
-                  Lapor Pelanggaran
-                </Link>
               </div>
 
               {/* Trust Badges */}
