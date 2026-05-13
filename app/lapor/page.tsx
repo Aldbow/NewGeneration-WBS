@@ -184,13 +184,13 @@ export default function LaporPage() {
               </div>
               <div>
                 <p className="font-heading font-bold text-[#0A2558] mb-1 flex items-center gap-2">
-                  <Shield size={14} /> Jaminan 100% Anonim
+                  <Shield size={14} /> Laporan Anonim
                 </p>
                 <p className="text-sm text-[#475569] leading-relaxed">
                   Laporan Anda disampaikan tanpa menyimpan identitas apapun. Tidak ada log IP, cookie pelacak, atau data yang dapat mengidentifikasi Anda.
                 </p>
                 <div className="mt-2 flex gap-4 flex-wrap">
-                  {['Tanpa Identitas', 'Terenkripsi', 'Dilindungi UU'].map((t) => (
+                  {['Tanpa Identitas', 'Terenkripsi'].map((t) => (
                     <span key={t} className="flex items-center gap-1 text-xs text-green-700 font-medium">
                       <Eye size={11} /> {t}
                     </span>

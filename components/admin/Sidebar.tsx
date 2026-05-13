@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import Link from 'next/link'
-import { useRouter, usePathname } from 'next/navigation'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { useAdminStore } from '@/store/useAdminStore'
 import {
   Shield, LayoutDashboard, FileText, AlertTriangle,
@@ -15,12 +15,13 @@ const navItems = [
   { href: '/admin/dashboard?tab=laporan', label: 'Laporan WBS', icon: AlertTriangle },
 ]
 
-export default function Sidebar() {
+function SidebarInner() {
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const logout = useAdminStore((s) => s.logout)
   const router = useRouter()
-  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const currentTab = searchParams.get('tab') || ''
 
   const handleLogout = () => {
     logout()
@@ -43,24 +44,31 @@ export default function Sidebar() {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 p-3 space-y-1" aria-label="Admin navigation">
+      <nav className="flex-1 p-3 space-y-1.5" aria-label="Admin navigation">
         {navItems.map(({ href, label, icon: Icon }) => {
-          const active = pathname === '/admin/dashboard'
+          // Extract tab from href for comparison
+          let itemTab = ''
+          if (href.includes('?tab=')) {
+            itemTab = href.split('?tab=')[1]
+          }
+          
+          const active = currentTab === itemTab
+
           return (
             <Link
               key={href}
               href={href}
               id={`sidebar-${label.toLowerCase().replace(/\s/g, '-')}`}
               onClick={() => setMobileOpen(false)}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${active && href === '/admin/dashboard'
-                  ? 'bg-[#0A2558] text-white'
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 ${active
+                  ? 'bg-[#0A2558] text-white shadow-md shadow-blue-900/20 translate-x-1'
                   : 'text-[#475569] hover:bg-[#F1F5F9] hover:text-[#1E293B]'
                 } ${collapsed ? 'justify-center' : ''}`}
               title={collapsed ? label : undefined}
             >
-              <Icon size={18} className="shrink-0" />
+              <Icon size={18} className={`shrink-0 transition-transform ${active ? 'scale-110' : ''}`} />
               {!collapsed && <span>{label}</span>}
-              {!collapsed && <ChevronRight size={14} className="ml-auto opacity-40" />}
+              {!collapsed && active && <div className="w-1.5 h-1.5 rounded-full bg-blue-300 ml-auto" />}
             </Link>
           )
         })}
@@ -128,5 +136,13 @@ export default function Sidebar() {
         </div>
       )}
     </>
+  )
+}
+
+export default function Sidebar() {
+  return (
+    <Suspense fallback={<aside className="hidden lg:block w-60 h-screen bg-white border-r border-[#E2E8F0]" />}>
+      <SidebarInner />
+    </Suspense>
   )
 }

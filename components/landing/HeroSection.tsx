@@ -197,7 +197,7 @@ export default function HeroSection() {
                 {[
                   { icon: Lock, label: '100% Anonim' },
                   { icon: Shield, label: 'Terenkripsi End-to-End' },
-                  { icon: Eye, label: 'Dilindungi UU No. 13/2022' },
+                  // { icon: Eye, label: 'Dilindungi UU No. 13/2022' },
                 ].map(({ icon: Icon, label }) => (
                   <div key={label} className="flex items-center gap-2 text-slate-400 text-sm">
                     <Icon size={14} className="text-cyan-400 shrink-0" />

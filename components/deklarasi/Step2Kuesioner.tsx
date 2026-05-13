@@ -96,12 +96,14 @@ export default function Step2Kuesioner({ defaultValues, onNext, onBack }: Step2P
             id={`question-${q.id}`}
             className="card p-5"
           >
-            <p className="font-heading font-semibold text-[#1E293B] mb-4 text-sm leading-relaxed">
-              <span className="inline-flex w-6 h-6 rounded-full bg-[#0A2558] text-white text-xs items-center justify-center mr-2 shrink-0">
+            <div className="flex items-start gap-3 mb-4">
+              <span className="flex w-6 h-6 rounded-full bg-[#0A2558] text-white text-xs items-center justify-center shrink-0 mt-0.5">
                 {idx + 1}
               </span>
-              {q.question}
-            </p>
+              <p className="font-heading font-semibold text-[#1E293B] text-sm leading-relaxed">
+                {q.question}
+              </p>
+            </div>
             <div className="space-y-2" role="radiogroup">
               {q.options.map((opt) => {
                 const selected = answers[q.id as keyof QuestionnaireData] === opt.value

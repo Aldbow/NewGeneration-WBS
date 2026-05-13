@@ -6,77 +6,161 @@ import { TicketWithDetails } from '@/lib/supabase-service'
 interface StatsGridProps {
   declarations: TicketWithDetails[]
   reports: TicketWithDetails[]
+  activeTab?: string
 }
 
-export default function StatsGrid({ declarations, reports }: StatsGridProps) {
+export default function StatsGrid({ declarations, reports, activeTab = 'all' }: StatsGridProps) {
   const totalDkl = declarations.length
   const totalWbs = reports.length
   const total = totalDkl + totalWbs
-  const selesai = [...declarations, ...reports].filter((t) => t.status === 'SELESAI').length
-  const diproses = [...declarations, ...reports].filter((t) => t.status === 'DIPROSES').length
-  const kritis = [...declarations, ...reports].filter((t) => t.urgency === 'KRITIS').length
+  
+  const selesaiDkl = declarations.filter((t) => t.status === 'SELESAI').length
+  const selesaiWbs = reports.filter((t) => t.status === 'SELESAI').length
+  const selesaiAll = selesaiDkl + selesaiWbs
 
-  const rateSelesai = total > 0 ? Math.round((selesai / total) * 100) : 0
+  const diprosesDkl = declarations.filter((t) => t.status === 'DIPROSES').length
+  const diprosesWbs = reports.filter((t) => t.status === 'DIPROSES').length
+  const diprosesAll = diprosesDkl + diprosesWbs
 
-  const cards = [
-    {
-      id: 'stat-total',
-      label: 'Total Tiket',
-      value: total,
-      sub: 'Semua jenis',
-      icon: Users,
-      color: 'from-blue-500 to-blue-700',
-      span: 'md:col-span-3',
-    },
-    {
-      id: 'stat-deklarasi',
-      label: 'Deklarasi',
-      value: totalDkl,
-      sub: 'Deklarasi masuk',
-      icon: FileText,
-      color: 'from-violet-500 to-violet-700',
-      span: 'md:col-span-3',
-    },
-    {
-      id: 'stat-laporan',
-      label: 'Laporan WBS',
-      value: totalWbs,
-      sub: 'Laporan anonim',
-      icon: AlertTriangle,
-      color: 'from-rose-500 to-rose-700',
-      span: 'md:col-span-3',
-    },
-    {
-      id: 'stat-selesai',
-      label: 'Diselesaikan',
-      value: `${rateSelesai}%`,
-      sub: `${selesai} dari ${total} tiket`,
-      icon: CheckCircle,
-      color: 'from-emerald-500 to-emerald-700',
-      span: 'md:col-span-3',
-    },
-    {
-      id: 'stat-diproses',
-      label: 'Sedang Diproses',
-      value: diproses,
-      sub: 'Membutuhkan tindak lanjut',
-      icon: Clock,
-      color: 'from-amber-500 to-amber-700',
-      span: 'md:col-span-6',
-    },
-    {
-      id: 'stat-kritis',
-      label: 'Kasus Kritis',
-      value: kritis,
-      sub: 'Prioritas tinggi',
-      icon: TrendingUp,
-      color: 'from-red-600 to-red-800',
-      span: 'md:col-span-6',
-    },
-  ]
+  const kritis = reports.filter((t) => t.urgency === 'KRITIS').length
+
+  const rateSelesaiAll = total > 0 ? Math.round((selesaiAll / total) * 100) : 0
+  const rateSelesaiDkl = totalDkl > 0 ? Math.round((selesaiDkl / totalDkl) * 100) : 0
+  const rateSelesaiWbs = totalWbs > 0 ? Math.round((selesaiWbs / totalWbs) * 100) : 0
+
+  let cards = []
+
+  if (activeTab === 'deklarasi') {
+    cards = [
+      {
+        id: 'stat-deklarasi',
+        label: 'Total Deklarasi',
+        value: totalDkl,
+        sub: 'Semua deklarasi masuk',
+        icon: FileText,
+        color: 'from-violet-500 to-violet-700',
+        span: 'col-span-2 md:col-span-4',
+      },
+      {
+        id: 'stat-selesai-dkl',
+        label: 'Diselesaikan',
+        value: `${rateSelesaiDkl}%`,
+        sub: `${selesaiDkl} dari ${totalDkl} deklarasi`,
+        icon: CheckCircle,
+        color: 'from-emerald-500 to-emerald-700',
+        span: 'col-span-1 md:col-span-4',
+      },
+      {
+        id: 'stat-diproses-dkl',
+        label: 'Sedang Diproses',
+        value: diprosesDkl,
+        sub: 'Membutuhkan verifikasi',
+        icon: Clock,
+        color: 'from-amber-500 to-amber-700',
+        span: 'col-span-1 md:col-span-4',
+      },
+    ]
+  } else if (activeTab === 'laporan') {
+    cards = [
+      {
+        id: 'stat-laporan',
+        label: 'Total Laporan WBS',
+        value: totalWbs,
+        sub: 'Semua laporan masuk',
+        icon: AlertTriangle,
+        color: 'from-rose-500 to-rose-700',
+        span: 'col-span-2 md:col-span-3',
+      },
+      {
+        id: 'stat-kritis',
+        label: 'Kasus Kritis',
+        value: kritis,
+        sub: 'Prioritas penanganan utama',
+        icon: TrendingUp,
+        color: 'from-red-600 to-red-800',
+        span: 'col-span-2 md:col-span-3',
+      },
+      {
+        id: 'stat-selesai-wbs',
+        label: 'Diselesaikan',
+        value: `${rateSelesaiWbs}%`,
+        sub: `${selesaiWbs} dari ${totalWbs} laporan`,
+        icon: CheckCircle,
+        color: 'from-emerald-500 to-emerald-700',
+        span: 'col-span-1 md:col-span-3',
+      },
+      {
+        id: 'stat-diproses-wbs',
+        label: 'Sedang Diproses',
+        value: diprosesWbs,
+        sub: 'Dalam tahap investigasi',
+        icon: Clock,
+        color: 'from-amber-500 to-amber-700',
+        span: 'col-span-1 md:col-span-3',
+      },
+    ]
+  } else {
+    // 'all' view
+    cards = [
+      {
+        id: 'stat-total',
+        label: 'Total Tiket',
+        value: total,
+        sub: 'Semua jenis',
+        icon: Users,
+        color: 'from-blue-500 to-blue-700',
+        span: 'col-span-2 md:col-span-3',
+      },
+      {
+        id: 'stat-deklarasi',
+        label: 'Deklarasi',
+        value: totalDkl,
+        sub: 'Deklarasi masuk',
+        icon: FileText,
+        color: 'from-violet-500 to-violet-700',
+        span: 'col-span-1 md:col-span-3',
+      },
+      {
+        id: 'stat-laporan',
+        label: 'Laporan WBS',
+        value: totalWbs,
+        sub: 'Laporan anonim',
+        icon: AlertTriangle,
+        color: 'from-rose-500 to-rose-700',
+        span: 'col-span-1 md:col-span-3',
+      },
+      {
+        id: 'stat-selesai',
+        label: 'Diselesaikan',
+        value: `${rateSelesaiAll}%`,
+        sub: `${selesaiAll} dari ${total} tiket`,
+        icon: CheckCircle,
+        color: 'from-emerald-500 to-emerald-700',
+        span: 'col-span-2 md:col-span-3',
+      },
+      {
+        id: 'stat-diproses',
+        label: 'Sedang Diproses',
+        value: diprosesAll,
+        sub: 'Membutuhkan tindak lanjut',
+        icon: Clock,
+        color: 'from-amber-500 to-amber-700',
+        span: 'col-span-1 md:col-span-6',
+      },
+      {
+        id: 'stat-kritis',
+        label: 'Kasus Kritis',
+        value: kritis,
+        sub: 'Prioritas tinggi',
+        icon: TrendingUp,
+        color: 'from-red-600 to-red-800',
+        span: 'col-span-1 md:col-span-6',
+      },
+    ]
+  }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-12 gap-4 mb-6">
+    <div className={`grid grid-cols-2 md:grid-cols-12 gap-4 mb-6`}>
       {cards.map(({ id, label, value, sub, icon: Icon, color, span }) => (
         <div
           key={id}

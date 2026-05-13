@@ -13,6 +13,7 @@ interface DataTableProps {
   onSearchChange: (q: string) => void
   filterType: 'all' | 'deklarasi' | 'laporan'
   onFilterType: (t: 'all' | 'deklarasi' | 'laporan') => void
+  activeTab?: string
 }
 
 type SortKey = 'ticketId' | 'createdAt' | 'status' | 'urgency'
@@ -24,6 +25,7 @@ export default function DataTable({
   onSearchChange,
   filterType,
   onFilterType,
+  activeTab = 'all',
 }: DataTableProps) {
   const [sortKey, setSortKey] = useState<SortKey>('createdAt')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
@@ -81,25 +83,27 @@ export default function DataTable({
             className="form-input !pl-9 !py-2 text-sm"
           />
         </div>
-        {/* Filter Tabs */}
-        <div className="flex gap-1 bg-[#F1F5F9] rounded-xl p-1" role="tablist" aria-label="Filter jenis tiket">
-          {(['all', 'deklarasi', 'laporan'] as const).map((t) => (
-            <button
-              key={t}
-              id={`filter-tab-${t}`}
-              role="tab"
-              aria-selected={filterType === t}
-              onClick={() => onFilterType(t)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                filterType === t
-                  ? 'bg-white text-[#0A2558] shadow-sm'
-                  : 'text-[#475569] hover:text-[#1E293B]'
-              }`}
-            >
-              {t === 'all' ? 'Semua' : t === 'deklarasi' ? 'Deklarasi' : 'Laporan WBS'}
-            </button>
-          ))}
-        </div>
+        {/* Filter Tabs - Hide if a specific sidebar tab is active */}
+        {(!activeTab || activeTab === 'all') && (
+          <div className="flex gap-1 bg-[#F1F5F9] rounded-xl p-1" role="tablist" aria-label="Filter jenis tiket">
+            {(['all', 'deklarasi', 'laporan'] as const).map((t) => (
+              <button
+                key={t}
+                id={`filter-tab-${t}`}
+                role="tab"
+                aria-selected={filterType === t}
+                onClick={() => onFilterType(t)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  filterType === t
+                    ? 'bg-white text-[#0A2558] shadow-sm'
+                    : 'text-[#475569] hover:text-[#1E293B]'
+                }`}
+              >
+                {t === 'all' ? 'Semua' : t === 'deklarasi' ? 'Deklarasi' : 'Laporan WBS'}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Table */}

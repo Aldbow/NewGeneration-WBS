@@ -1,7 +1,8 @@
 'use client'
 
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState } from 'react'
 import { Trash2, Pen, AlertCircle } from 'lucide-react'
+import SignatureCanvas from 'react-signature-canvas'
 
 export interface SignatureData {
   signatureDataUrl: string
@@ -22,91 +23,18 @@ const DECLARATION_TEXT = `Saya yang bertanda tangan di bawah ini menyatakan deng
 3. Apabila dikemudian hari terbukti bahwa pernyataan ini tidak benar, saya bersedia menerima sanksi sesuai ketentuan yang berlaku.`
 
 export default function Step3Signature({ onNext, onBack, userName, isSubmitting }: Step3Props) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [isDrawing, setIsDrawing] = useState(false)
+  const sigCanvas = useRef<SignatureCanvas>(null)
   const [hasSignature, setHasSignature] = useState(false)
   const [agreed, setAgreed] = useState(false)
   const [error, setError] = useState('')
 
-  const getPos = (e: MouseEvent | TouchEvent, canvas: HTMLCanvasElement) => {
-    const rect = canvas.getBoundingClientRect()
-    const scaleX = canvas.width / rect.width
-    const scaleY = canvas.height / rect.height
-    if ('touches' in e) {
-      return {
-        x: (e.touches[0].clientX - rect.left) * scaleX,
-        y: (e.touches[0].clientY - rect.top) * scaleY,
-      }
-    }
-    return {
-      x: (e.clientX - rect.left) * scaleX,
-      y: (e.clientY - rect.top) * scaleY,
-    }
-  }
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    canvas.width = canvas.offsetWidth * 2
-    canvas.height = canvas.offsetHeight * 2
-    ctx.scale(2, 2)
-    ctx.strokeStyle = '#0A2558'
-    ctx.lineWidth = 2
-    ctx.lineCap = 'round'
-    ctx.lineJoin = 'round'
-
-    const start = (e: MouseEvent | TouchEvent) => {
-      e.preventDefault()
-      setIsDrawing(true)
-      setHasSignature(true)
-      const pos = getPos(e, canvas)
-      ctx.beginPath()
-      ctx.moveTo(pos.x / 2, pos.y / 2)
-    }
-
-    const draw = (e: MouseEvent | TouchEvent) => {
-      if (!isDrawing) return
-      e.preventDefault()
-      const pos = getPos(e, canvas)
-      ctx.lineTo(pos.x / 2, pos.y / 2)
-      ctx.stroke()
-    }
-
-    const end = () => setIsDrawing(false)
-
-    canvas.addEventListener('mousedown', start)
-    canvas.addEventListener('mousemove', draw)
-    canvas.addEventListener('mouseup', end)
-    canvas.addEventListener('mouseleave', end)
-    canvas.addEventListener('touchstart', start, { passive: false })
-    canvas.addEventListener('touchmove', draw, { passive: false })
-    canvas.addEventListener('touchend', end)
-
-    return () => {
-      canvas.removeEventListener('mousedown', start)
-      canvas.removeEventListener('mousemove', draw)
-      canvas.removeEventListener('mouseup', end)
-      canvas.removeEventListener('mouseleave', end)
-      canvas.removeEventListener('touchstart', start)
-      canvas.removeEventListener('touchmove', draw)
-      canvas.removeEventListener('touchend', end)
-    }
-  }, [isDrawing])
-
   const clearSignature = () => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    sigCanvas.current?.clear()
     setHasSignature(false)
   }
 
   const handleSubmit = () => {
-    if (!hasSignature) {
+    if (!hasSignature || sigCanvas.current?.isEmpty()) {
       setError('Harap berikan tanda tangan Anda di area yang tersedia.')
       return
     }
@@ -115,7 +43,9 @@ export default function Step3Signature({ onNext, onBack, userName, isSubmitting 
       return
     }
     setError('')
-    const dataUrl = canvasRef.current?.toDataURL('image/png') || ''
+    
+    // Menggunakan getCanvas() biasa untuk menghindari error trim_canvas pada Next.js
+    const dataUrl = sigCanvas.current?.getCanvas().toDataURL('image/png') || ''
     onNext({ signatureDataUrl: dataUrl, agreed })
   }
 
@@ -155,12 +85,15 @@ export default function Step3Signature({ onNext, onBack, userName, isSubmitting 
             Hapus
           </button>
         </div>
-        <div className="relative h-36 sm:h-48 rounded-2xl overflow-hidden border-2 border-dashed border-[#CBD5E1] bg-white">
-          <canvas
-            ref={canvasRef}
-            id="signature-canvas"
-            className="w-full h-full cursor-crosshair touch-none"
-            aria-label="Area tanda tangan digital"
+        <div className="relative h-48 rounded-2xl overflow-hidden border-2 border-dashed border-[#CBD5E1] bg-white">
+          <SignatureCanvas
+            ref={sigCanvas}
+            penColor="#0A2558"
+            canvasProps={{
+              className: 'w-full h-full cursor-crosshair touch-none',
+              'aria-label': 'Area tanda tangan digital'
+            }}
+            onBegin={() => setHasSignature(true)}
           />
           {!hasSignature && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none text-[#CBD5E1] text-sm">
