@@ -9,13 +9,7 @@ import DataTable from '@/components/admin/DataTable'
 import DeklarasiTab from '@/components/admin/DeklarasiTab'
 import LaporanTab from '@/components/admin/LaporanTab'
 import DetailDrawer from '@/components/admin/DetailDrawer'
-import { Loader2, AlertCircle, RefreshCw, LayoutDashboard, FileText, AlertTriangle } from 'lucide-react'
-
-const TAB_TITLES: Record<string, { label: string; desc: string; icon: React.ElementType }> = {
-  dashboard: { label: 'Dashboard Admin', desc: 'Overview semua tiket', icon: LayoutDashboard },
-  deklarasi: { label: 'Manajemen Deklarasi', desc: 'Kelola semua deklarasi keterpaksaan', icon: FileText },
-  laporan: { label: 'Manajemen Laporan WBS', desc: 'Kelola semua laporan pelanggaran', icon: AlertTriangle },
-}
+import { Loader2, AlertCircle, RefreshCw, FileText, AlertTriangle, LayoutDashboard } from 'lucide-react'
 
 function DashboardContent() {
   const router = useRouter()
@@ -73,172 +67,105 @@ function DashboardContent() {
   const TabIcon = tabInfo.icon
 
   return (
-    <div id="admin-dashboard" className="flex min-h-screen bg-[#F8FAFC]">
-      <Sidebar />
+    <div className="flex-1 flex flex-col min-w-0 lg:mt-0 mt-14">
+      {/* Top Bar */}
+      <header className="bg-white border-b border-[#E2E8F0] px-6 py-4 flex items-center justify-between sticky top-0 z-30">
+        <div className="flex items-center gap-3">
+          <div className="hidden sm:flex w-10 h-10 rounded-xl bg-[#F8FAFC] items-center justify-center text-[#0A2558] border border-[#E2E8F0]">
+            <HeaderIcon size={20} />
+          </div>
+          <div>
+            <h1 className="text-lg font-heading font-bold text-[#1E293B]">{title}</h1>
+            <p className="text-xs text-[#94A3B8]">{subtitle}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            id="refresh-data-btn"
+            onClick={() => loadTickets()}
+            disabled={isLoading}
+            className="p-2 rounded-xl hover:bg-[#F1F5F9] transition text-[#475569] disabled:opacity-50"
+            title="Refresh data"
+          >
+            <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} />
+          </button>
+          <div className="w-8 h-8 rounded-full gradient-bg flex items-center justify-center text-white text-xs font-bold">
+            A
+          </div>
+          <div className="hidden sm:block text-right">
+            <p className="text-sm font-semibold text-[#1E293B]">Administrator</p>
+            <p className="text-xs text-[#94A3B8]">Super Admin</p>
+          </div>
+        </div>
+      </header>
 
-      <div className="flex-1 flex flex-col min-w-0 lg:mt-0 mt-14">
-        {/* Top Bar */}
-        <header className="bg-white border-b border-[#E2E8F0] px-6 py-4 flex items-center justify-between sticky top-0 z-30">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#0A2558] to-[#1D5BBF] flex items-center justify-center shadow-sm">
-              <TabIcon size={16} className="text-white" />
-            </div>
+      {/* Content */}
+      <main id="dashboard-main" className="flex-1 p-4 sm:p-6">
+        {/* Loading State */}
+        {isLoading && tickets.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <Loader2 size={40} className="text-[#0A2558] animate-spin mb-4" />
+            <p className="text-[#475569]">Memuat data dari database...</p>
+          </div>
+        )}
+
+        {/* Error State */}
+        {fetchError && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3" role="alert">
+            <AlertCircle size={18} className="text-red-500 shrink-0 mt-0.5" />
             <div>
-              <h1 className="text-lg font-heading font-bold text-[#1E293B]">{tabInfo.label}</h1>
-              <p className="text-xs text-[#94A3B8]">{tabInfo.desc}</p>
+              <p className="text-sm font-semibold text-red-700">Gagal memuat data</p>
+              <p className="text-sm text-red-600">{fetchError}</p>
+              <button
+                onClick={() => loadTickets()}
+                className="mt-2 text-sm text-red-700 underline hover:no-underline"
+              >
+                Coba lagi
+              </button>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <button
-              id="refresh-data-btn"
-              onClick={() => loadTickets()}
-              disabled={isLoading}
-              className="p-2 rounded-xl hover:bg-[#F1F5F9] transition text-[#475569] disabled:opacity-50"
-              title="Refresh data"
-            >
-              <HeaderIcon size={20} />
-            </motion.div>
-          </AnimatePresence>
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={title}
-              initial={{ y: 10, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: -10, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <h1 className="text-lg font-heading font-bold text-[#1E293B]">{title}</h1>
-              <p className="text-xs text-[#94A3B8]">{subtitle}</p>
-            </motion.div>
-          </AnimatePresence>
-      </div>
-      <div className="flex items-center gap-3">
-        <button
-          id="refresh-data-btn"
-          onClick={() => loadTickets()}
-          disabled={isLoading}
-          className="p-2 rounded-xl hover:bg-[#F1F5F9] transition text-[#475569] disabled:opacity-50"
-          title="Refresh data"
-        >
-          <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} />
-        </button>
-        <div className="w-8 h-8 rounded-full gradient-bg flex items-center justify-center text-white text-xs font-bold">
-          A
-        </div>
-        <div className="hidden sm:block text-right">
-          <p className="text-sm font-semibold text-[#1E293B]">Administrator</p>
-          <p className="text-xs text-[#94A3B8]">Super Admin</p>
-        </div>
-      </div>
-    </motion.header>
+        )}
 
-      {/* Content */ }
-  <motion.main
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    transition={{ duration: 0.5, delay: 0.2 }}
-    id="dashboard-main"
-    className="flex-1 p-4 sm:p-6 overflow-y-auto"
-  >
-    {/* Loading State */}
-    {isLoading && tickets.length === 0 && (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
-        <Loader2 size={40} className="text-[#0A2558] animate-spin mb-4" />
-        <p className="text-[#475569]">Memuat data dari database...</p>
-      </div>
-    )}
+        {/* Error State */}
+        {fetchError && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3" role="alert">
+            <AlertCircle size={18} className="text-red-500 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-semibold text-red-700">Gagal memuat data</p>
+              <p className="text-sm text-red-600">{fetchError}</p>
+              <button onClick={() => loadTickets()} className="mt-2 text-sm text-red-700 underline hover:no-underline">
+                Coba lagi
+              </button>
+            </div>
+          </div>
+        )}
 
-    {/* Error State */}
-    {fetchError && (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3"
-        role="alert"
-      >
-        <AlertCircle size={18} className="text-red-500 shrink-0 mt-0.5" />
-        <div>
-          <p className="text-sm font-semibold text-red-700">Gagal memuat data</p>
-          <p className="text-sm text-red-600">{fetchError}</p>
-          <button
-            onClick={() => loadTickets()}
-            className="mt-2 text-sm text-red-700 underline hover:no-underline"
-          >
-            Coba lagi
-          </button>
-        </div>
-      </motion.div>
-    )}
-
-    {/* Error State */}
-    {fetchError && (
-      <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3" role="alert">
-        <AlertCircle size={18} className="text-red-500 shrink-0 mt-0.5" />
-        <div>
-          <p className="text-sm font-semibold text-red-700">Gagal memuat data</p>
-          <p className="text-sm text-red-600">{fetchError}</p>
-          <button onClick={() => loadTickets()} className="mt-2 text-sm text-red-700 underline hover:no-underline">
-            Coba lagi
-          </button>
-        </div>
-      </div>
-    )}
-
-    {/* Tab Content */}
-    {(!isLoading || tickets.length > 0) && (
-      <>
-        {activeTab === 'dashboard' && (
+        {/* Tab Content */}
+        {(!isLoading || tickets.length > 0) && (
           <>
-            <StatsGrid declarations={declarations} reports={reports} />
-            <DataTable
-              tickets={tickets}
-              onSelect={(t) => setSelectedTicket(t)}
-              searchQuery={searchQuery}
-              onSearchChange={setSearchQuery}
-              filterType={filterType}
-              onFilterType={setFilterType}
-            />
-          </>
-        )}
+            {activeTab === 'dashboard' && (
+              <>
+                <StatsGrid declarations={declarations} reports={reports} />
+                <DataTable
+                  tickets={tickets}
+                  onSelect={(t) => setSelectedTicket(t)}
+                  searchQuery={searchQuery}
+                  onSearchChange={setSearchQuery}
+                  filterType={filterType}
+                  onFilterType={setFilterType}
+                />
+              </>
+            )}
+          </main>
 
-        {activeTab === 'deklarasi' && (
-          <DeklarasiTab
-            tickets={tickets}
-            onSelect={(t) => setSelectedTicket(t)}
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            filterStatus={filterStatus}
-            onFilterStatus={setFilterStatus}
+        {/* Detail Drawer */}
+        {selectedTicket && (
+          <DetailDrawer
+            ticket={selectedTicket}
+            onClose={() => setSelectedTicket(null)}
           />
         )}
-
-        {activeTab === 'laporan' && (
-          <LaporanTab
-            tickets={tickets}
-            onSelect={(t) => setSelectedTicket(t)}
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            filterStatus={filterStatus}
-            onFilterStatus={setFilterStatus}
-          />
-        )}
-      </>
-    )}
-  </main>
-      </div >
-
-    {/* Detail Drawer */ }
-    <AnimatePresence>
-  {
-    selectedTicket && (
-      <DetailDrawer
-        ticket={selectedTicket}
-        onClose={() => setSelectedTicket(null)}
-      />
-    )
-  }
-      </AnimatePresence >
-    </div >
+    </div>
   )
 }
 

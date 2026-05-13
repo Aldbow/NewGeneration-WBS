@@ -90,10 +90,21 @@ export default function DetailDrawer({ ticket, onClose }: DetailDrawerProps) {
   return (
     <>
       {/* Overlay */}
-      <div id="drawer-overlay" className="drawer-overlay" onClick={onClose} />
+      <div
+        id="drawer-overlay"
+        className="drawer-overlay"
+        onClick={onClose}
+        aria-label="Tutup detail"
+      />
 
       {/* Panel */}
-      <div id="detail-drawer" className="drawer-panel" role="dialog" aria-modal="true" aria-label={`Detail tiket ${ticket.ticketId}`}>
+      <div
+        id="detail-drawer"
+        className="drawer-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Detail tiket ${ticket.ticketId}`}
+      >
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-[#E2E8F0] px-6 py-4 flex items-center justify-between z-10">
           <div className="flex items-center gap-2">

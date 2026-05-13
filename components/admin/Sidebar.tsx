@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { useAdminStore, AdminTab } from '@/store/useAdminStore'
+import { useState, Suspense } from 'react'
+import Link from 'next/link'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
+import { useAdminStore } from '@/store/useAdminStore'
 import {
   Shield, LayoutDashboard, FileText, AlertTriangle,
   LogOut, Menu, X, ChevronRight
@@ -55,17 +56,17 @@ function SidebarInner() {
             <button
               key={tab}
               id={`sidebar-${label.toLowerCase().replace(/\s/g, '-')}`}
-              onClick={() => handleNav(tab)}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all w-full text-left ${active
-                ? 'bg-[#0A2558] text-white shadow-lg shadow-[#0A2558]/20'
+              onClick={() => setMobileOpen(false)}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 ${active
+                ? 'bg-[#0A2558] text-white shadow-md shadow-blue-900/20 translate-x-1'
                 : 'text-[#475569] hover:bg-[#F1F5F9] hover:text-[#1E293B]'
                 } ${collapsed ? 'justify-center' : ''}`}
               title={collapsed ? label : undefined}
             >
               <Icon size={18} className={`shrink-0 transition-transform ${active ? 'scale-110' : ''}`} />
               {!collapsed && <span>{label}</span>}
-              {!collapsed && <ChevronRight size={14} className={`ml-auto transition-transform ${active ? 'opacity-70' : 'opacity-40'}`} />}
-            </button>
+              {!collapsed && active && <div className="w-1.5 h-1.5 rounded-full bg-blue-300 ml-auto" />}
+            </Link>
           )
         })}
       </nav>
