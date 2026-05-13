@@ -244,7 +244,7 @@ function DashboardContent() {
 
 export default function AdminDashboardPage() {
   return (
-    <div id="admin-dashboard" className="flex h-screen bg-[#F8FAFC]">
+    <div id="admin-dashboard" className="flex min-h-screen bg-[#F8FAFC]">
       <Sidebar />
       <Suspense fallback={<div className="flex-1 flex items-center justify-center"><Loader2 className="animate-spin text-[#0A2558]" /></div>}>
         <DashboardContent />

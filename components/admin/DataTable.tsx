@@ -5,7 +5,6 @@ import { getStatusColor, getStatusLabel, getUrgencyColor } from '@/lib/mock-data
 import { TicketWithDetails } from '@/lib/supabase-service'
 import { formatDateShort } from '@/lib/ticket'
 import { FileText, AlertTriangle, ChevronUp, ChevronDown, Eye, Search } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
 
 interface DataTableProps {
   tickets: TicketWithDetails[]
@@ -69,12 +68,7 @@ export default function DataTable({
     )
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.3 }}
-      className="card overflow-hidden"
-    >
+    <div className="card overflow-hidden">
       {/* Toolbar */}
       <div className="p-4 border-b border-[#E2E8F0] flex flex-col sm:flex-row gap-3">
         {/* Search */}
@@ -208,6 +202,6 @@ export default function DataTable({
       <div className="px-4 py-3 border-t border-[#E2E8F0] text-xs text-[#94A3B8]">
         Menampilkan {filtered.length} dari {tickets.length} tiket
       </div>
-    </motion.div>
+    </div>
   )
 }

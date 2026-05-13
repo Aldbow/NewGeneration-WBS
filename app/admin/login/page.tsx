@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { useAdminStore } from '@/store/useAdminStore'
 import { Shield, Eye, EyeOff, AlertCircle, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
 
 export default function AdminLoginPage() {
   const [username, setUsername] = useState('')
@@ -30,41 +29,16 @@ export default function AdminLoginPage() {
     }
   }
 
-  const fadeInUp = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
-  }
-
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  }
-
   return (
     <main id="admin-login-main" className="min-h-screen flex">
       {/* Left Panel — Branding */}
-      <motion.div 
-        initial={{ opacity: 0, x: -50 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="hidden lg:flex lg:w-1/2 gradient-bg relative overflow-hidden flex-col items-center justify-center p-12"
-      >
+      <div className="hidden lg:flex lg:w-1/2 gradient-bg relative overflow-hidden flex-col items-center justify-center p-12">
         <div className="absolute inset-0 opacity-10" style={{
           backgroundImage: 'radial-gradient(circle at 30% 40%, white 1px, transparent 1px), radial-gradient(circle at 70% 80%, white 1px, transparent 1px)',
           backgroundSize: '60px 60px',
         }} aria-hidden="true" />
 
-        <motion.div 
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="relative text-center text-white max-w-md"
-        >
+        <div className="relative text-center text-white max-w-md">
           <div className="w-20 h-20 rounded-3xl bg-white/15 flex items-center justify-center mx-auto mb-8 border border-white/20">
             <Shield size={40} className="text-white" />
           </div>
@@ -78,29 +52,18 @@ export default function AdminLoginPage() {
               { label: 'Menunggu Review', value: '2' },
               { label: 'Selesai', value: '2' },
               { label: 'Tingkat Selesai', value: '89%' },
-            ].map(({ label, value }, idx) => (
-              <motion.div 
-                key={label} 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 + idx * 0.1 }}
-                className="bg-white/10 rounded-xl p-3 text-center border border-white/10"
-              >
+            ].map(({ label, value }) => (
+              <div key={label} className="bg-white/10 rounded-xl p-3 text-center border border-white/10">
                 <p className="text-2xl font-heading font-bold">{value}</p>
                 <p className="text-xs text-blue-200 mt-0.5">{label}</p>
-              </motion.div>
+              </div>
             ))}
           </div>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
 
       {/* Right Panel — Form */}
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="w-full lg:w-1/2 flex items-center justify-center p-6 bg-[#F8FAFC] relative"
-      >
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 bg-[#F8FAFC] relative">
         {/* Back to Home — top left on desktop */}
         <Link
           href="/"
@@ -113,14 +76,9 @@ export default function AdminLoginPage() {
           Kembali ke Beranda
         </Link>
 
-        <motion.div 
-          variants={staggerContainer}
-          initial="hidden"
-          animate="visible"
-          className="w-full max-w-md"
-        >
+        <div className="w-full max-w-md">
           {/* Mobile Logo */}
-          <motion.div variants={fadeInUp} className="flex lg:hidden items-center gap-2.5 mb-8">
+          <div className="flex lg:hidden items-center gap-2.5 mb-8">
             <div className="w-9 h-9 rounded-xl gradient-bg flex items-center justify-center">
               <Shield size={18} className="text-white" />
             </div>
@@ -128,14 +86,12 @@ export default function AdminLoginPage() {
               <p className="font-heading font-bold text-sm text-[#0A2558]">Portal Integritas</p>
               <p className="text-xs text-[#475569]">Admin Panel</p>
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div variants={fadeInUp}>
-            <h2 className="text-2xl font-heading font-bold text-[#1E293B] mb-1">Selamat Datang</h2>
-            <p className="text-[#475569] text-sm mb-8">Masuk ke panel administrasi</p>
-          </motion.div>
+          <h2 className="text-2xl font-heading font-bold text-[#1E293B] mb-1">Selamat Datang</h2>
+          <p className="text-[#475569] text-sm mb-8">Masuk ke panel administrasi</p>
 
-          <motion.form variants={fadeInUp} id="admin-login-form" onSubmit={handleSubmit} noValidate className="space-y-5">
+          <form id="admin-login-form" onSubmit={handleSubmit} noValidate className="space-y-5">
             {/* Username */}
             <div>
               <label htmlFor="admin-username" className="form-label">Username</label>
@@ -179,21 +135,14 @@ export default function AdminLoginPage() {
 
             {/* Error */}
             {error && (
-              <motion.div 
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-xl px-4 py-3" 
-                role="alert"
-              >
+              <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-xl px-4 py-3" role="alert">
                 <AlertCircle size={16} className="text-red-500 mt-0.5 shrink-0" aria-hidden="true" />
                 <p className="text-sm text-red-700">{error}</p>
-              </motion.div>
+              </div>
             )}
 
             {/* Submit */}
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+            <button
               id="admin-login-btn"
               type="submit"
               disabled={loading || !username || !password}
@@ -205,7 +154,7 @@ export default function AdminLoginPage() {
                   Memverifikasi...
                 </>
               ) : 'Masuk ke Dashboard'}
-            </motion.button>
+            </button>
 
             <p className="text-center text-xs text-[#94A3B8]">
               Demo: <code className="bg-gray-100 px-1 rounded">admin</code> / <code className="bg-gray-100 px-1 rounded">admin123</code>
@@ -220,9 +169,9 @@ export default function AdminLoginPage() {
               <ArrowLeft size={15} />
               Kembali ke Beranda
             </Link>
-          </motion.form>
-        </motion.div>
-      </motion.div>
+          </form>
+        </div>
+      </div>
     </main>
   )
 }

@@ -7,7 +7,6 @@ import { TicketWithDetails, TicketStatus, getSignatureUrl } from '@/lib/supabase
 import { formatDate } from '@/lib/ticket'
 import { X, FileText, AlertTriangle, User, Calendar, MapPin, Tag, Clock, CheckCircle, Trash2, Loader2, Mail, Phone, MessageSquare } from 'lucide-react'
 import { useAdminStore } from '@/store/useAdminStore'
-import { motion } from 'framer-motion'
 
 const STATUS_OPTIONS: { value: TicketStatus; label: string }[] = [
   { value: 'DITERIMA', label: 'Diterima' },
@@ -242,7 +241,7 @@ export default function DetailDrawer({ ticket, onClose }: DetailDrawerProps) {
             )}
           </div>
         </div>
-      </motion.div>
+      </div>
     </>
   )
 }

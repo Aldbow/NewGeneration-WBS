@@ -2,7 +2,6 @@
 
 import { FileText, AlertTriangle, CheckCircle, Clock, TrendingUp, Users } from 'lucide-react'
 import { TicketWithDetails } from '@/lib/supabase-service'
-import { motion, AnimatePresence } from 'framer-motion'
 
 interface StatsGridProps {
   declarations: TicketWithDetails[]
@@ -160,47 +159,23 @@ export default function StatsGrid({ declarations, reports, activeTab = 'all' }: 
     ]
   }
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.08 }
-    }
-  }
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } },
-    exit: { opacity: 0, scale: 0.95, transition: { duration: 0.2 } }
-  }
-
   return (
-    <motion.div 
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      key={activeTab} // Retrigger animation on tab change
-      className="grid grid-cols-2 md:grid-cols-12 gap-4 mb-6"
-    >
-      <AnimatePresence mode="popLayout">
-        {cards.map(({ id, label, value, sub, icon: Icon, color, span }) => (
-          <motion.div
-            key={id}
-            variants={itemVariants}
-            layout
-            id={id}
-            className={`${span} card p-5 relative overflow-hidden group hover:scale-[1.02] transition-transform`}
-          >
-            <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${color} opacity-5 rounded-full translate-x-8 -translate-y-8 group-hover:opacity-10 transition-opacity`} aria-hidden="true" />
-            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center mb-3 shadow-sm`}>
-              <Icon size={18} className="text-white" />
-            </div>
-            <p className="text-2xl font-heading font-bold text-[#1E293B] mb-0.5">{value}</p>
-            <p className="text-xs font-semibold text-[#1E293B]">{label}</p>
-            <p className="text-xs text-[#94A3B8] mt-0.5">{sub}</p>
-          </motion.div>
-        ))}
-      </AnimatePresence>
-    </motion.div>
+    <div className={`grid grid-cols-2 md:grid-cols-12 gap-4 mb-6`}>
+      {cards.map(({ id, label, value, sub, icon: Icon, color, span }) => (
+        <div
+          key={id}
+          id={id}
+          className={`${span} card p-5 relative overflow-hidden group hover:scale-[1.02] transition-transform`}
+        >
+          <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${color} opacity-5 rounded-full translate-x-8 -translate-y-8 group-hover:opacity-10 transition-opacity`} aria-hidden="true" />
+          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center mb-3 shadow-sm`}>
+            <Icon size={18} className="text-white" />
+          </div>
+          <p className="text-2xl font-heading font-bold text-[#1E293B] mb-0.5">{value}</p>
+          <p className="text-xs font-semibold text-[#1E293B]">{label}</p>
+          <p className="text-xs text-[#94A3B8] mt-0.5">{sub}</p>
+        </div>
+      ))}
+    </div>
   )
 }
