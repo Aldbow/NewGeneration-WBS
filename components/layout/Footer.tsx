@@ -14,7 +14,7 @@ export default function Footer() {
               </div>
               <div>
                 <p className="font-heading font-bold text-sm leading-none">Portal Integritas</p>
-                <p className="text-xs text-blue-200 leading-none mt-0.5">Kementerian Ketenagakerjaan RI</p>
+                <p className="text-xs text-blue-200 leading-none mt-0.5">UKPBJ - Kementerian Ketenagakerjaan RI</p>
               </div>
             </div>
             <p className="text-sm text-blue-200 leading-relaxed">
@@ -67,7 +67,7 @@ export default function Footer() {
 
         <div className="border-t border-white/10 mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-blue-300">
           <p>© 2025 Kementerian Ketenagakerjaan Republik Indonesia. Hak cipta dilindungi.</p>
-          <p>Sistem ini dijamin kerahasiaannya sesuai peraturan yang berlaku.</p>
+          {/* <p>Sistem ini dijamin kerahasiaannya sesuai peraturan yang berlaku.</p> */}
         </div>
       </div>
     </footer>

@@ -60,7 +60,7 @@ export default function Header() {
             </div>
             <div>
               <p className={`font-heading font-bold text-sm leading-none ${logoTextColor}`}>Portal Integritas</p>
-              <p className={`text-xs leading-none mt-0.5 ${logoSubColor}`}>Kemnaker</p>
+              <p className={`text-xs leading-none mt-0.5 ${logoSubColor}`}>UKPBJ Kemnaker</p>
             </div>
           </Link>
 
@@ -71,9 +71,8 @@ export default function Header() {
                 key={link.href}
                 href={link.href}
                 id={`nav-${link.href.replace('/', '') || 'home'}`}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  pathname === link.href ? navActiveColor : navTextBase
-                }`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${pathname === link.href ? navActiveColor : navTextBase
+                  }`}
               >
                 {link.label}
               </Link>
@@ -85,11 +84,10 @@ export default function Header() {
             <Link
               href="/deklarasi"
               id="header-cta-deklarasi"
-              className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-heading font-bold transition-all duration-200 ${
-                isHeroPage
+              className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-heading font-bold transition-all duration-200 ${isHeroPage
                   ? 'bg-gradient-to-r from-cyan-600 to-blue-500 text-white hover:from-cyan-500 hover:to-blue-400 shadow-lg shadow-cyan-900/30'
                   : 'bg-gradient-to-r from-[#0A2558] to-[#1D5BBF] text-white shadow-lg'
-              } hover:scale-105 hover:-translate-y-0.5`}
+                } hover:scale-105 hover:-translate-y-0.5`}
             >
               <FileText size={14} />
               Buat Deklarasi
@@ -97,11 +95,10 @@ export default function Header() {
             <Link
               href="/admin/login"
               id="header-admin-login"
-              className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
-                isHeroPage
+              className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${isHeroPage
                   ? 'text-slate-300 border border-white/15 hover:bg-white/8 hover:text-white'
                   : 'text-slate-600 border border-slate-200 hover:bg-slate-50'
-              }`}
+                }`}
             >
               Admin
             </Link>
@@ -110,9 +107,8 @@ export default function Header() {
           {/* ── Mobile Menu Button ── */}
           <button
             id="mobile-menu-btn"
-            className={`md:hidden p-2 rounded-xl transition ${
-              isHeroPage ? 'text-white hover:bg-white/10' : 'text-slate-700 hover:bg-slate-100'
-            }`}
+            className={`md:hidden p-2 rounded-xl transition ${isHeroPage ? 'text-white hover:bg-white/10' : 'text-slate-700 hover:bg-slate-100'
+              }`}
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Toggle menu"
             aria-expanded={mobileOpen}
@@ -130,11 +126,10 @@ export default function Header() {
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
-                  className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition ${
-                    pathname === link.href
+                  className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition ${pathname === link.href
                       ? isHeroPage ? 'bg-white/12 text-white' : 'bg-[#0A2558] text-white'
                       : isHeroPage ? 'text-slate-300 hover:bg-white/8' : 'text-slate-600 hover:bg-slate-50'
-                  }`}
+                    }`}
                 >
                   {link.label}
                   <ChevronRight size={16} className="opacity-40" />
@@ -151,9 +146,8 @@ export default function Header() {
                 <Link
                   href="/admin/login"
                   onClick={() => setMobileOpen(false)}
-                  className={`py-3 rounded-xl text-center text-sm font-medium border ${
-                    isHeroPage ? 'border-white/15 text-slate-300' : 'border-slate-200 text-slate-600'
-                  }`}
+                  className={`py-3 rounded-xl text-center text-sm font-medium border ${isHeroPage ? 'border-white/15 text-slate-300' : 'border-slate-200 text-slate-600'
+                    }`}
                 >
                   Login Admin
                 </Link>

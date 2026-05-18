@@ -176,7 +176,7 @@ export default function HeroSection() {
               {/* Badge */}
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-sm font-semibold mb-8 hero-badge hero-enter hero-enter-1">
                 <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-                <span className="text-cyan-300">Sistem Integritas Kemnaker RI</span>
+                <span className="text-cyan-300">Sistem Integritas UKPBJ Kemnaker RI</span>
               </div>
 
               {/* Headline */}
@@ -188,12 +188,12 @@ export default function HeroSection() {
                   Integritas,
                 </span>
                 <span className="block text-4xl sm:text-5xl lg:text-6xl text-slate-300 mt-2 font-semibold hero-enter hero-enter-4">
-                  Tanpa Rasa Takut.
+                  UKPBJ Kemnaker.
                 </span>
               </h1>
 
               <p className="text-slate-400 text-lg leading-relaxed mb-10 max-w-xl hero-enter hero-enter-5">
-                Platform deklarasi benturan kepentingan dan pelaporan pelanggaran <strong className="text-white">100% anonim</strong> — dirancang untuk melindungi Anda sepenuhnya.
+                Platform deklarasi benturan kepentingan dan pelaporan pelanggaran <strong className="text-white">100% anonim</strong>
               </p>
 
               {/* CTA Row */}
