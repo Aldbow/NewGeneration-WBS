@@ -689,8 +689,8 @@ export async function deleteTicketData(
     }
 
     return { success: true }
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error deleting ticket physical data:', err)
-    return { success: false, error: err.message || 'Terjadi kesalahan saat menghapus data' }
+    return { success: false, error: err instanceof Error ? err.message : 'Terjadi kesalahan saat menghapus data' }
   }
 }
