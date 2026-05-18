@@ -6,6 +6,7 @@ import { useAdminStore } from '@/store/useAdminStore'
 import Sidebar from '@/components/admin/Sidebar'
 import StatsGrid from '@/components/admin/StatsGrid'
 import DataTable from '@/components/admin/DataTable'
+import OverviewCharts from '@/components/admin/OverviewCharts'
 import DetailDrawer from '@/components/admin/DetailDrawer'
 import { Loader2, AlertCircle, RefreshCw, FileText, AlertTriangle, LayoutDashboard } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -173,16 +174,20 @@ function DashboardContent() {
             {/* Stats */}
             <StatsGrid declarations={declarations} reports={reports} activeTab={tabParam || 'all'} />
 
-            {/* Table */}
-            <DataTable
-              tickets={tickets}
-              onSelect={(t) => setSelectedTicket(t)}
-              searchQuery={searchQuery}
-              onSearchChange={setSearchQuery}
-              filterType={filterType}
-              onFilterType={setFilterType}
-              activeTab={tabParam || 'all'}
-            />
+            {/* Content Switcher */}
+            {(!tabParam || tabParam === 'all') ? (
+              <OverviewCharts tickets={tickets} />
+            ) : (
+              <DataTable
+                tickets={tickets}
+                onSelect={(t) => setSelectedTicket(t)}
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                filterType={filterType}
+                onFilterType={setFilterType}
+                activeTab={tabParam}
+              />
+            )}
           </>
         )}
       </motion.main>

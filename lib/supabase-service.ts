@@ -511,7 +511,7 @@ export async function fetchAllTickets(): Promise<{
       .in('ticket_id', ticketIds)
 
     const declsMap = new Map<string, DbDeclaration>()
-    ;(declsData || []).forEach((d: DbDeclaration) => declsMap.set(d.ticket_id, d))
+      ; (declsData || []).forEach((d: DbDeclaration) => declsMap.set(d.ticket_id, d))
 
     // 3. Batch fetch all wbs_reports
     const { data: reportsData } = await supabase
@@ -520,7 +520,7 @@ export async function fetchAllTickets(): Promise<{
       .in('ticket_id', ticketIds)
 
     const reportsMap = new Map<string, DbWbsReport>()
-    ;(reportsData || []).forEach((r: DbWbsReport) => reportsMap.set(r.ticket_id, r))
+      ; (reportsData || []).forEach((r: DbWbsReport) => reportsMap.set(r.ticket_id, r))
 
     // 4. Batch fetch all timelines
     const { data: timelinesData } = await supabase
@@ -530,16 +530,16 @@ export async function fetchAllTickets(): Promise<{
       .order('created_at', { ascending: true })
 
     const timelinesMap = new Map<string, TimelineEntry[]>()
-    ;(timelinesData || []).forEach((t: DbTimeline) => {
-      const list = timelinesMap.get(t.ticket_id) || []
-      list.push({
-        status: t.status,
-        label: t.label,
-        date: t.created_at,
-        note: t.note || undefined,
+      ; (timelinesData || []).forEach((t: DbTimeline) => {
+        const list = timelinesMap.get(t.ticket_id) || []
+        list.push({
+          status: t.status,
+          label: t.label,
+          date: t.created_at,
+          note: t.note || undefined,
+        })
+        timelinesMap.set(t.ticket_id, list)
       })
-      timelinesMap.set(t.ticket_id, list)
-    })
 
     // 5. Assemble results
     const results: TicketWithDetails[] = tickets.map((ticket) => {
@@ -702,7 +702,7 @@ export async function deleteTicketData(
 export async function getWbsEvidenceFiles(ticketUuid: string): Promise<{ name: string; url: string }[]> {
   try {
     const { data: files, error } = await supabase.storage.from('wbs-evidence').list(ticketUuid)
-    
+
     if (error || !files || files.length === 0) {
       return []
     }

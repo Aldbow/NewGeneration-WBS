@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { getStatusColor, getStatusLabel, getUrgencyColor } from '@/lib/mock-data'
 import { TicketWithDetails } from '@/lib/supabase-service'
 import { formatDateShort } from '@/lib/ticket'
-import { FileText, AlertTriangle, ChevronUp, ChevronDown, Eye, Search, Trash2, Loader2, X } from 'lucide-react'
+import { FileText, AlertTriangle, ChevronUp, ChevronDown, Eye, Search, Copy, Check, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAdminStore } from '@/store/useAdminStore'
 
@@ -32,24 +32,13 @@ export default function DataTable({
   const [sortKey, setSortKey] = useState<SortKey>('createdAt')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
 
-  // Delete Modal State
-  const [deleteTarget, setDeleteTarget] = useState<TicketWithDetails | null>(null)
-  const [deleteNote, setDeleteNote] = useState('')
-  const [isDeleting, setIsDeleting] = useState(false)
-  const deleteTicketPermanently = useAdminStore((s) => s.deleteTicketPermanently)
+  const [copiedId, setCopiedId] = useState<string | null>(null)
 
-  const handleDeleteConfirm = async () => {
-    if (!deleteTarget) return
-    setIsDeleting(true)
-    const prefix = 'DIHAPUS OLEH ADMIN'
-    const finalNote = deleteNote.trim() ? `${prefix}: ${deleteNote.trim()}` : prefix
-    
-    // Hard delete data while keeping the ticket and timeline
-    await deleteTicketPermanently(deleteTarget.id, deleteTarget.ticketId, deleteTarget.type, finalNote)
-    
-    setIsDeleting(false)
-    setDeleteTarget(null)
-    setDeleteNote('')
+  const handleCopyId = (ticketId: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    navigator.clipboard.writeText(ticketId)
+    setCopiedId(ticketId)
+    setTimeout(() => setCopiedId(null), 2000)
   }
 
   const toggleSort = (key: SortKey) => {
@@ -90,7 +79,7 @@ export default function DataTable({
     )
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.3 }}
@@ -120,11 +109,10 @@ export default function DataTable({
                 role="tab"
                 aria-selected={filterType === t}
                 onClick={() => onFilterType(t)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                  filterType === t
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${filterType === t
                     ? 'bg-white text-[#0A2558] shadow-sm'
                     : 'text-[#475569] hover:text-[#1E293B]'
-                }`}
+                  }`}
               >
                 {t === 'all' ? 'Semua' : t === 'deklarasi' ? 'Deklarasi' : 'Laporan WBS'}
               </button>
@@ -226,12 +214,16 @@ export default function DataTable({
                         <Eye size={13} /> Detail
                       </button>
                       <button
-                        id={`delete-ticket-${ticket.ticketId}`}
-                        onClick={(e) => { e.stopPropagation(); setDeleteTarget(ticket) }}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 text-red-600 text-xs font-semibold hover:bg-red-100 transition"
-                        aria-label={`Hapus tiket ${ticket.ticketId}`}
+                        id={`copy-ticket-${ticket.ticketId}`}
+                        onClick={(e) => handleCopyId(ticket.ticketId, e)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 text-gray-700 text-xs font-semibold hover:bg-gray-200 transition"
+                        aria-label={`Salin ID tiket ${ticket.ticketId}`}
                       >
-                        <Trash2 size={13} /> Hapus
+                        {copiedId === ticket.ticketId ? (
+                          <><Check size={13} className="text-green-600" /> Disalin</>
+                        ) : (
+                          <><Copy size={13} /> Salin ID</>
+                        )}
                       </button>
                     </div>
                   </td>
@@ -246,86 +238,7 @@ export default function DataTable({
         Menampilkan {filtered.length} dari {tickets.length} tiket
       </div>
 
-      {/* Delete Confirmation Modal */}
-      <AnimatePresence>
-        {deleteTarget && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-[#0A1628]/40 backdrop-blur-sm"
-              onClick={() => !isDeleting && setDeleteTarget(null)}
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="relative bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden"
-            >
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600">
-                      <Trash2 size={20} />
-                    </div>
-                    <h3 className="text-lg font-heading font-bold text-[#1E293B]">Hapus Tiket</h3>
-                  </div>
-                  <button
-                    onClick={() => !isDeleting && setDeleteTarget(null)}
-                    className="p-2 text-[#94A3B8] hover:bg-[#F1F5F9] rounded-xl transition"
-                  >
-                    <X size={18} />
-                  </button>
-                </div>
-                
-                <p className="text-sm text-[#475569] mb-4">
-                  Anda yakin ingin menghapus tiket <strong className="text-[#1E293B]">{deleteTarget.ticketId}</strong>?
-                  <br/>
-                  Tiket ini beserta seluruh data laporannya (termasuk lampiran/tanda tangan) akan dihapus secara fisik dan tidak dapat dipulihkan.
-                  Namun, riwayat nomor tiket akan tetap tercatat di timeline.
-                </p>
-
-                <div className="mb-6">
-                  <label htmlFor="delete-note" className="block text-xs font-semibold text-[#475569] mb-1.5 uppercase tracking-wide">
-                    Alasan Penghapusan (Opsional)
-                  </label>
-                  <textarea
-                    id="delete-note"
-                    rows={3}
-                    placeholder="Contoh: Tiket spam, data duplikat, dll."
-                    value={deleteNote}
-                    onChange={(e) => setDeleteNote(e.target.value)}
-                    className="form-input text-sm resize-none"
-                    disabled={isDeleting}
-                  />
-                </div>
-
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => setDeleteTarget(null)}
-                    disabled={isDeleting}
-                    className="flex-1 px-4 py-2.5 rounded-xl border border-[#E2E8F0] text-[#475569] font-semibold text-sm hover:bg-[#F8FAFC] transition disabled:opacity-50"
-                  >
-                    Batal
-                  </button>
-                  <button
-                    onClick={handleDeleteConfirm}
-                    disabled={isDeleting}
-                    className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 text-white font-semibold text-sm hover:bg-red-700 transition shadow-[0_4px_12px_rgba(220,38,38,0.25)] flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-wait"
-                  >
-                    {isDeleting ? (
-                      <><Loader2 size={16} className="animate-spin" /> Menghapus...</>
-                    ) : (
-                      'Konfirmasi Hapus'
-                    )}
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      {/* Removed Delete Confirmation Modal */}
     </motion.div>
   )
 }

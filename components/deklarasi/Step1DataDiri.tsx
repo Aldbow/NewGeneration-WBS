@@ -29,13 +29,13 @@ const fields: {
   type?: string
   required?: boolean
 }[] = [
-  { name: 'nama', label: 'Nama Lengkap', placeholder: 'Masukkan nama lengkap Anda', icon: User, required: true },
-  { name: 'nip', label: 'NIP / NIK', placeholder: 'Masukkan NIP atau NIK Anda', icon: Hash, required: true },
-  { name: 'jabatan', label: 'Jabatan', placeholder: 'Jabatan saat ini', icon: Briefcase, required: true },
-  { name: 'unit', label: 'Unit / Satuan Kerja', placeholder: 'Nama unit atau satuan kerja', icon: Building2, required: true },
-  { name: 'email', label: 'Email (Opsional)', placeholder: 'alamat@email.com', icon: User, type: 'email' },
-  { name: 'noHp', label: 'No. HP (Opsional)', placeholder: '08xxxxxxxx', icon: Hash, type: 'tel' },
-]
+    { name: 'nama', label: 'Nama Lengkap', placeholder: 'Masukkan nama lengkap Anda', icon: User, required: true },
+    { name: 'nip', label: 'NIP', placeholder: 'Masukkan NIP Anda', icon: Hash, required: true },
+    { name: 'jabatan', label: 'Jabatan', placeholder: 'Jabatan saat ini', icon: Briefcase, required: true },
+    { name: 'unit', label: 'Unit / Satuan Kerja', placeholder: 'Nama unit atau satuan kerja', icon: Building2, required: true },
+    { name: 'email', label: 'Email (Opsional)', placeholder: 'alamat@email.com', icon: User, type: 'email' },
+    { name: 'noHp', label: 'No. HP (Opsional)', placeholder: '08xxxxxxxx', icon: Hash, type: 'tel' },
+  ]
 
 export default function Step1DataDiri({ defaultValues, onNext }: Step1Props) {
   const {

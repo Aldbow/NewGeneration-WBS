@@ -2,7 +2,6 @@ import { create } from 'zustand'
 import {
   fetchAllTickets,
   updateTicketStatusInDb,
-  deleteTicketData,
   TicketWithDetails,
   TicketStatus,
 } from '@/lib/supabase-service'
@@ -21,7 +20,6 @@ interface AdminStore {
   setSelectedTicket: (ticket: TicketWithDetails | null) => void
 
   updateTicketStatus: (ticketUuid: string, ticketId: string, status: TicketStatus, note?: string) => Promise<boolean>
-  deleteTicketPermanently: (ticketUuid: string, ticketId: string, type: 'deklarasi' | 'laporan', note?: string) => Promise<boolean>
 
   searchQuery: string
   setSearchQuery: (q: string) => void
@@ -111,58 +109,7 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
     return true
   },
 
-  deleteTicketPermanently: async (ticketUuid, ticketId, type, note) => {
-    // 1. Update status to DITOLAK with the note to leave a timeline trail
-    const statusUpdated = await get().updateTicketStatus(ticketUuid, ticketId, 'DITOLAK', note)
-    if (!statusUpdated) return false
 
-    // 2. Hard delete the physical data
-    const { success, error } = await deleteTicketData(ticketUuid, type)
-    if (!success) {
-      console.error('Failed to hard delete ticket data:', error)
-      return false
-    }
-
-    // 3. Update local state to strip the sensitive fields
-    set((state) => {
-      const stripTicket = (ticket: TicketWithDetails): TicketWithDetails => {
-        if (ticket.id !== ticketUuid) return ticket
-        return {
-          ...ticket,
-          // Strip declaration fields
-          nama: undefined,
-          nip: undefined,
-          jabatan: undefined,
-          unit: undefined,
-          email: undefined,
-          noHp: undefined,
-          q1: undefined,
-          q2: undefined,
-          q3: undefined,
-          q4: undefined,
-          q5: undefined,
-          keteranganLain: undefined,
-          signaturePath: undefined,
-          isAgreed: undefined,
-          // Strip WBS fields
-          category: undefined,
-          title: undefined,
-          description: undefined,
-          eventDate: undefined,
-          eventTime: undefined,
-          location: undefined,
-          filesCount: undefined,
-        }
-      }
-
-      return {
-        tickets: state.tickets.map(stripTicket),
-        selectedTicket: state.selectedTicket ? stripTicket(state.selectedTicket) : null,
-      }
-    })
-
-    return true
-  },
 
   searchQuery: '',
   setSearchQuery: (q) => set({ searchQuery: q }),

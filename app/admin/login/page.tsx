@@ -80,7 +80,7 @@ export default function AdminLoginPage() {
   return (
     <main id="admin-login-main" className="min-h-screen flex">
       {/* Left Panel — Branding */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, x: -50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
@@ -91,7 +91,7 @@ export default function AdminLoginPage() {
           backgroundSize: '60px 60px',
         }} aria-hidden="true" />
 
-        <motion.div 
+        <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
@@ -106,8 +106,8 @@ export default function AdminLoginPage() {
           </p>
           <div className="grid grid-cols-2 gap-3">
             {stats.map(({ label, value }, idx) => (
-              <motion.div 
-                key={label} 
+              <motion.div
+                key={label}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 + idx * 0.1 }}
@@ -122,7 +122,7 @@ export default function AdminLoginPage() {
       </motion.div>
 
       {/* Right Panel — Form */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
@@ -140,7 +140,7 @@ export default function AdminLoginPage() {
           Kembali ke Beranda
         </Link>
 
-        <motion.div 
+        <motion.div
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
@@ -206,10 +206,10 @@ export default function AdminLoginPage() {
 
             {/* Error */}
             {error && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
-                className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-xl px-4 py-3" 
+                className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-xl px-4 py-3"
                 role="alert"
               >
                 <AlertCircle size={16} className="text-red-500 mt-0.5 shrink-0" aria-hidden="true" />
@@ -233,10 +233,10 @@ export default function AdminLoginPage() {
                 </>
               ) : 'Masuk ke Dashboard'}
             </motion.button>
-
+            {/* 
             <p className="text-center text-xs text-[#94A3B8]">
               Demo: <code className="bg-gray-100 px-1 rounded">admin</code> / <code className="bg-gray-100 px-1 rounded">admin123</code>
-            </p>
+            </p> */}
 
             {/* Back to Home — visible on mobile */}
             <Link
