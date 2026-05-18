@@ -112,14 +112,27 @@ export default function OverviewCharts({ tickets }: OverviewChartsProps) {
     ].filter(item => item.value > 0) // Only show non-zero urgencies
   }, [tickets])
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  interface TooltipEntry {
+    name: string
+    value: number
+    color?: string
+    payload?: { fill?: string }
+  }
+
+  interface CustomTooltipProps {
+    active?: boolean
+    payload?: TooltipEntry[]
+    label?: string
+  }
+
+  const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white p-3 border border-[#E2E8F0] shadow-xl rounded-xl text-sm">
           <p className="font-semibold text-[#1E293B] mb-2">{label}</p>
-          {payload.map((entry: any, index: number) => (
+          {payload.map((entry: TooltipEntry, index: number) => (
             <div key={index} className="flex items-center gap-2 mb-1">
-              <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: entry.color || entry.payload.fill }} />
+              <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: entry.color || entry.payload?.fill }} />
               <span className="text-[#475569]">{entry.name}:</span>
               <span className="font-bold text-[#1E293B]">{entry.value}</span>
             </div>
