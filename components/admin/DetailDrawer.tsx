@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { getStatusColor, getStatusLabel, getUrgencyColor, TicketStatus } from '@/lib/mock-data'
 import { TicketWithDetails } from '@/lib/supabase-service'
 import { formatDate } from '@/lib/ticket'
-import { X, FileText, AlertTriangle, User, Calendar, MapPin, Tag, Clock, CheckCircle } from 'lucide-react'
+import { X, FileText, AlertTriangle, User, Calendar, MapPin, Tag, Clock, CheckCircle, Download } from 'lucide-react'
 import { useAdminStore } from '@/store/useAdminStore'
 import { motion } from 'framer-motion'
 
@@ -36,7 +36,22 @@ export default function DetailDrawer({ ticket, onClose }: DetailDrawerProps) {
   const [updated, setUpdated] = useState(false)
   const [updateError, setUpdateError] = useState('')
   const [generatingPdf, setGeneratingPdf] = useState(false)
+  const [evidenceFiles, setEvidenceFiles] = useState<{name: string, url: string}[]>([])
+  const [loadingFiles, setLoadingFiles] = useState(false)
   const updateTicketStatus = useAdminStore((s) => s.updateTicketStatus)
+
+  useEffect(() => {
+    if (ticket.type === 'laporan' && ticket.filesCount && ticket.filesCount > 0) {
+      const fetchFiles = async () => {
+        setLoadingFiles(true)
+        const { getWbsEvidenceFiles } = await import('@/lib/supabase-service')
+        const files = await getWbsEvidenceFiles(ticket.id)
+        setEvidenceFiles(files)
+        setLoadingFiles(false)
+      }
+      fetchFiles()
+    }
+  }, [ticket])
 
   const handleGeneratePdf = async () => {
     try {
@@ -169,6 +184,28 @@ export default function DetailDrawer({ ticket, onClose }: DetailDrawerProps) {
                 {ticket.eventDate && <DetailRow icon={Calendar} label="Tanggal Kejadian" value={ticket.eventDate} />}
                 {ticket.location && <DetailRow icon={MapPin} label="Lokasi" value={ticket.location} />}
                 <DetailRow icon={FileText} label="Bukti" value={`${ticket.filesCount || 0} file dilampirkan`} />
+                {ticket.type === 'laporan' && ticket.filesCount && ticket.filesCount > 0 && (
+                  <div className="pl-6 space-y-2 mt-2 mb-4">
+                    {loadingFiles ? (
+                      <div className="text-xs text-[#94A3B8] flex items-center gap-2">
+                        <div className="w-3 h-3 border-2 border-[#94A3B8]/30 border-t-[#94A3B8] rounded-full animate-spin" /> Memuat file bukti...
+                      </div>
+                    ) : (
+                      evidenceFiles.map((file, idx) => (
+                        <a 
+                          key={idx} 
+                          href={file.url} 
+                          target="_blank" 
+                          rel="noreferrer" 
+                          className="flex items-center gap-2 text-xs text-blue-600 hover:text-blue-800 transition bg-blue-50/50 hover:bg-blue-50 p-2 rounded border border-blue-100"
+                        >
+                          <Download size={14} />
+                          <span className="truncate font-medium">{file.name}</span>
+                        </a>
+                      ))
+                    )}
+                  </div>
+                )}
                 {ticket.description && (
                   <div className="flex items-start gap-2">
                     <FileText size={13} className="text-[#94A3B8] mt-0.5 shrink-0" aria-hidden="true" />

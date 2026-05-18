@@ -694,3 +694,37 @@ export async function deleteTicketData(
     return { success: false, error: err instanceof Error ? err.message : 'Terjadi kesalahan saat menghapus data' }
   }
 }
+
+// ──────────────────────────────────────────────
+// WBS: GET EVIDENCE FILES
+// ──────────────────────────────────────────────
+
+export async function getWbsEvidenceFiles(ticketUuid: string): Promise<{ name: string; url: string }[]> {
+  try {
+    const { data: files, error } = await supabase.storage.from('wbs-evidence').list(ticketUuid)
+    
+    if (error || !files || files.length === 0) {
+      return []
+    }
+
+    const result = []
+    for (const file of files) {
+      // Skip empty placeholder files that Supabase might create
+      if (file.name === '.emptyFolderPlaceholder') continue
+
+      // Generate a signed URL valid for 1 hour (3600 seconds)
+      const { data } = await supabase.storage
+        .from('wbs-evidence')
+        .createSignedUrl(`${ticketUuid}/${file.name}`, 3600)
+
+      if (data?.signedUrl) {
+        result.push({ name: file.name, url: data.signedUrl })
+      }
+    }
+
+    return result
+  } catch (err) {
+    console.error('Error fetching evidence files:', err)
+    return []
+  }
+}
