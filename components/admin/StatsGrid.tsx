@@ -15,8 +15,8 @@ export default function StatsGrid({ declarations, reports, activeTab = 'all' }: 
   const totalWbs = reports.length
   const total = totalDkl + totalWbs
   
-  const selesaiDkl = declarations.filter((t) => t.status === 'SELESAI').length
-  const selesaiWbs = reports.filter((t) => t.status === 'SELESAI').length
+  const selesaiDkl = declarations.filter((t) => t.status === 'SELESAI' || t.status === 'DITOLAK').length
+  const selesaiWbs = reports.filter((t) => t.status === 'SELESAI' || t.status === 'DITOLAK').length
   const selesaiAll = selesaiDkl + selesaiWbs
 
   const diprosesDkl = declarations.filter((t) => t.status === 'DIPROSES').length
